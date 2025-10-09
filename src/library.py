@@ -1,18 +1,14 @@
-# === SMART NUTRITION APP (Final Robust Version) ===
-# USDA + OpenFoodFacts APIs
-# Supports: text input, barcode number, image upload
-# Converts to imperial units, suggests real alternatives
-# Retries input automatically on errors
+# 
 
 import requests
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
+import os
 
 # for testing
-sample_img_path = "src\resources\images\redbull.png"
-# --------------------------------------------------
-# === UTILITY FUNCTIONS ===
-# --------------------------------------------------
+sample_img_path = os.path.join("src", "resources", "images", "redbull.png")
+
+
 
 def convert_to_imperial_units(nutrients: dict) -> dict:
     """Convert metric nutrient values (per 100 g) into imperial units (per oz)."""
