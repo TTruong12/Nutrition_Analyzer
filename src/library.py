@@ -14,7 +14,6 @@
 import requests
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
-from google.colab import files
 
 # --------------------------------------------------
 # === UTILITY FUNCTIONS ===
@@ -43,9 +42,8 @@ def display_nutrition_facts(nutrients: dict):
     if not nutrients:
         print("⚠️ No nutrition data available.")
         return
-    print("=" * 50)
-    print(f"{nutrients.get('brand_name','')} - {nutrients.get('food_name','Unknown')}")
-    print("=" * 50)
+    print("=" * 50 + f"{nutrients.get('brand_name','')} - {nutrients.get('food_name','Unknown')}" + "=" * 50)
+    
     def show(label,key,unit=""):
         v = nutrients.get(key)
         if v is not None:
