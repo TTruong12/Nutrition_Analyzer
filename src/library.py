@@ -196,7 +196,7 @@ def decode_barcode_from_image():
 # === MAIN APP LOGIC WITH RETRY ===
 # --------------------------------------------------
 
-USDA_API_KEY="fftEJySuD09mKogI7s2lNVtX8geiLdx6nE8b8hbc"  # Get one free at fdc.nal.usda.gov/api-key-signup.html
+USDA_API_KEY="DEMO_KEY"  # Get one free at fdc.nal.usda.gov/api-key-signup.html
 
 def run_app():
     print("🥗 Welcome to the Smart Nutrition App!")
