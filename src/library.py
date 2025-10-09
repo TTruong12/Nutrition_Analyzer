@@ -28,27 +28,39 @@ def convert_to_imperial_units(nutrients: dict) -> dict:
     return converted
 
 
-def display_nutrition_facts(nutrients: dict):
-    """Pretty-print nutrition data."""
+def format_nutrition_facts(nutrients: dict) -> str:
+    """Return a formatted string showing nutrition data."""
     if not nutrients:
-        print("⚠️ No nutrition data available.")
-        return
-    print("=" * 50 + f"{nutrients.get('brand_name','')} - {nutrients.get('food_name','Unknown')}" + "=" * 50)
-    
-    def show(label,key,unit=""):
+        return "⚠️ No nutrition data available."
+
+    lines = []
+    lines.append("=" * 50)
+    lines.append(f"{nutrients.get('brand_name', '')} - {nutrients.get('food_name', 'Unknown')}")
+    lines.append("=" * 50)
+
+    def show(label, key, unit=""):
         v = nutrients.get(key)
         if v is not None:
-            print(f"{label:<20}{v:>10} {unit}")
-    show("Calories","calories","kcal")
-    show("Protein","protein","g")
-    show("Total Fat","fat","g")
-    show("Carbohydrates","carbohydrates","g")
-    show("Sugars","sugars","g")
-    show("Dietary Fiber","fiber","g")
-    show("Sodium","sodium","mg")
-    print(f"Basis: {nutrients.get('unit_basis','per 100 g')}")
-    print("=" * 50)
+            lines.append(f"{label:<20}{v:>10} {unit}")
 
+    show("Calories", "calories", "kcal")
+    show("Protein", "protein", "g")
+    show("Total Fat", "fat", "g")
+    show("Carbohydrates", "carbohydrates", "g")
+    show("Sugars", "sugars", "g")
+    show("Dietary Fiber", "fiber", "g")
+    show("Sodium", "sodium", "mg")
+
+    lines.append(f"Basis: {nutrients.get('unit_basis', 'per 100 g')}")
+    lines.append("=" * 50)
+
+    return "\n".join(lines)
+
+
+def display_nutrition_facts(nutrients: dict):
+    """Display nutrition facts using the formatted output."""
+    formatted = format_nutrition_facts(nutrients)
+    print(formatted)
 
 def recommend_healthier_alternative_real(food_name: str, max_results: int = 3):
     """Use OpenFoodFacts to find real healthier alternatives."""
