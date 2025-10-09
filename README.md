@@ -3,20 +3,24 @@ Nutrition App
 An app to scan your food/drink and give you information about the product and give you recommendations.
 
 Roles:
+
  Project Manager - Aneesh Parkhie
 - Scheduling project meetings
 - Keeps projects on timeline
 - Resolves/Addresses team conflict
+
 Lead Programmer - Tidjani Sow
 - Delegating coding work
 - Primary code reviewer
 - Attends office hours for coding related issues
+
 Quality Control - Theo Truong
 - Tests Code
 - Checks deliverables against the rubric/requirements
 - Writes README’s/project documentation
 - Oversees version control
 - Secondary code reviewer
+
 Liaison/Presenter - Benjamin Attota
 - Submits project deliverables on time
 - Primary speaker for final presentation
