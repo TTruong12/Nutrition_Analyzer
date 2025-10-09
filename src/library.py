@@ -3,18 +3,13 @@
 # Supports: text input, barcode number, image upload
 # Converts to imperial units, suggests real alternatives
 # Retries input automatically on errors
-# Author: ChatGPT
-
-# --------------------------------------------------
-# Install dependencies (only needed once per Colab session)
-# --------------------------------------------------
-!apt-get install -y libzbar0 > /dev/null
-!pip install -q pyzbar pillow requests
 
 import requests
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
 
+# for testing
+sample_img_path = "src\resources\images\redbull.png"
 # --------------------------------------------------
 # === UTILITY FUNCTIONS ===
 # --------------------------------------------------
@@ -175,11 +170,8 @@ def get_openfoodfacts_food(upc: str) -> dict:
 # --------------------------------------------------
 
 def decode_barcode_from_image():
-    """Upload and decode a barcode image in Colab."""
-    print("📸 Upload an image with a visible barcode …")
-    uploaded=files.upload()
-    image_path=list(uploaded.keys())[0]
-    img=Image.open(image_path).convert("L")
+    """"""
+    img=Image.open(sample_img_path).convert("L")
     img=img.resize((img.width*3,img.height*3))
     img=ImageEnhance.Contrast(img).enhance(2.0)
     codes=decode(img)
