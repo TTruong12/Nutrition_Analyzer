@@ -41,5 +41,42 @@ def convert_to_imperial_units(nutrients: dict) -> dict:
     converted["unit_basis"] = "per ounce (~28 g)"
     return converted
 
+
+parse_usda_nutrients: sorts nutrients from USDA API
+
+def parse_usda_nutrients(food: dict) -> dict:
+    """Extract main nutrients from USDA food entry."""
+    nutrients = {
+        "food_name": food.get("description", "Unknown"),
+        "brand_name": food.get("brandOwner", "Generic/USDA"),
+        "calories": None, "protein": None, "fat": None,
+        "carbohydrates": None, "sodium": None, "fiber": None, "sugars": None
+    }
+    for n in food.get("foodNutrients", []):
+        name = n.get("nutrientName", "").lower()
+        val = n.get("value", 0)
+        unit = n.get("unitName", "").lower()
+        if "energy" in name and "kcal" in unit:
+            nutrients["calories"] = val
+        elif "protein" in name:
+            nutrients["protein"] = val
+        elif "total lipid" in name or "fat" in name:
+            nutrients["fat"] = val
+        elif "carbohydrate" in name:
+            nutrients["carbohydrates"] = val
+        elif "fiber" in name:
+            nutrients["fiber"] = val
+        elif "sugars" in name:
+            nutrients["sugars"] = val
+        elif "sodium" in name:
+            nutrients["sodium"] = val
+    return nutrients
+
+
+
+
+
+    
+
     
 
