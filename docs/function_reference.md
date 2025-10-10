@@ -27,5 +27,19 @@ def display_healthier_alternatives(alternatives: list):
         print("-" * 60)
 
 
+convert_to_imperial: This makes all the units imperial system
+
+
+def convert_to_imperial_units(nutrients: dict) -> dict:
+    """Convert nutrient values from per 100 g to per ounce (~28 g)."""
+    if not nutrients: return {}
+    converted = nutrients.copy()
+    f = 28.3495 / 100
+    for k in ["fat", "carbohydrates", "protein", "fiber", "sugars", "sodium", "calories"]:
+        if k in converted and converted[k] is not None:
+            converted[k] = round(converted[k] * f, 2 if k not in {"sodium", "calories"} else 1)
+    converted["unit_basis"] = "per ounce (~28 g)"
+    return converted
+
     
 
