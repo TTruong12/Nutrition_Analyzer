@@ -237,6 +237,31 @@ def decode_barcode_from_image():
 # --------------------------------------------------
 
 USDA_API_KEY = "DEMO_KEY"  # Replace with your USDA key
+USDA_URL = "https://api.nal.usda.gov/fdc/v1"
+
+def get_food_item(upc):
+    """Given the universal product code, returns json of details of that item"""
+    url = f"{USDA_URL}/food/{fdc_id}?api_key=DEMO_KEY"
+    response = requests.get(url)
+    if response.status_code == 200:
+        food_data = response.json()
+        return food_data
+    else:
+        print(f"Failed to retrieve data {response.status_code}")
+
+
+def prompt_key() -> str:
+    test_key = input("Enter USDA Food Central API key: ")
+    return test_key
+
+
+def set_key(key = "DEMO_KEY"):
+    url = f"{USDA_URL}/food/0000000?api_key={key}"
+    response = requests.get(test_url)
+    if (response.status_code == 200):
+        USDA_API_KEY = test_key
+    else:
+        pass
 
 def run_app():
     print("🥗 Welcome to the Smart Nutrition App!")
