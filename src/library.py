@@ -71,6 +71,35 @@ def display_nutrition_facts(nutrients: dict):
     formatted = format_nutrition_facts(nutrients)
     print(formatted)
 
+def compare_labels(product_a: dict, product_b: dict) -> dict:
+    """
+    Compare nutrient facts between two food products.
+    
+    """
+    if not isinstance(product_a, dict) or not isinstance(product_b, dict):
+        raise ValueError("Both inputs must be dictionaries containing nutrient data.")
+
+    comparison_result = {}
+    common_nutrients = set(product_a.keys()) & set(product_b.keys())
+
+    for nutrient in common_nutrients:
+        a_val = product_a.get(nutrient, 0)
+        b_val = product_b.get(nutrient, 0)
+
+        if not isinstance(a_val, (int, float)) or not isinstance(b_val, (int, float)):
+            raise ValueError(f"Nutrient values must be numeric for '{nutrient}'.")
+
+        if a_val > b_val:
+            comparison = "higher in A"
+        elif b_val > a_val:
+            comparison = "higher in B"
+        else:
+            comparison = "equal"
+
+        comparison_result[nutrient] = (a_val, b_val, comparison)
+
+    return comparison_result
+
 # --------------------------------------------------
 # === HEALTHIER ALTERNATIVES (NEW MODULAR VERSION) ===
 # --------------------------------------------------
