@@ -1,8 +1,4 @@
-# === SMART NUTRITION APP (Final Modular Version) ===
-# USDA + OpenFoodFacts APIs
-# Supports: text input, barcode number, image upload
-# Converts to imperial units, suggests real alternatives
-# Retries input automatically on errors
+# Function Library
 
 # --------------------------------------------------
 # Install dependencies (only needed once per Colab session)
@@ -239,12 +235,12 @@ def decode_barcode_from_image():
 # --------------------------------------------------
 
 USDA_API_KEY = "DEMO_KEY"  # Replace with your USDA key
-USDA_URL = "https://api.nal.usda.gov/fdc/v1"
-csv_export = "export.csv"
+USDA_URL = "https://api.nal.usda.gov/fdc/v1" #URL for the food central database
+csv_export = "../resources/export.csv" #holds export dat in csv form 
 
 def get_food_item(upc):
     """Given the universal product code, returns json of details of that item"""
-    url = f"{USDA_URL}/food/{fdc_id}?api_key=DEMO_KEY"
+    url = f"{USDA_URL}/food/search?api_key={USDA_API_KEY}&query={upc}"
     response = requests.get(url)
     if response.status_code == 200:
         food_data = response.json()
