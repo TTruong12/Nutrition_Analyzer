@@ -1,6 +1,6 @@
-# Group-A
-Nutrition App
-An app to scan your food/drink and give you information about the product and give you recommendations.
+# Nutrition Analyzer
+Nutrition Analyzer
+An application that scans a food item and gives you information about the product and gives alternative recommendations.
 
 Roles:
 
@@ -42,7 +42,10 @@ There is a DEMO_KEY available, but it only works a limited amount of time.
 Obtaining your own key is recommended.
 
 Example use cases for functions:
-
+- discovering healthier food option
+- improving awareness of food intake 
+- buying groceries for a healthier meal plan
+- maximizing protein intake per calorie
 
 Contribution Guidelines
 Our team collaborates through GitHub using feature branches and pull requests. Each member focuses on specific areas: API integration, user interface, testing, and documentation. Code must follow programming standards, include clear comments, and run error-free. Before merging, at least one peer review is required. The main branch remains stable and is updated only after successful testing. Weekly check-ins ensure progress and task alignment. All commits must have descriptive messages and working examples. Each feature should be well-documented, tested with known barcodes, and contribute to a smooth, user-friendly nutrition analysis experience.
