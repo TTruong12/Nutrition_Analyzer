@@ -7,10 +7,12 @@
 # --------------------------------------------------
 # Install dependencies (only needed once per Colab session)
 # --------------------------------------------------
-!apt-get install -y libzbar0 > /dev/null
-!pip install -q pyzbar pillow requests
-from google.colab import files
+#!apt-get install -y libzbar0 > /dev/null
+#!pip install -q pyzbar pillow requests
+#from google.colab import files
 
+import json
+import csv
 import requests
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
@@ -238,6 +240,7 @@ def decode_barcode_from_image():
 
 USDA_API_KEY = "DEMO_KEY"  # Replace with your USDA key
 USDA_URL = "https://api.nal.usda.gov/fdc/v1"
+csv_export = "export.csv"
 
 def get_food_item(upc):
     """Given the universal product code, returns json of details of that item"""
@@ -251,11 +254,13 @@ def get_food_item(upc):
 
 
 def prompt_key() -> str:
+    """Prompts user for api key"""
     test_key = input("Enter USDA Food Central API key: ")
     return test_key
 
 
 def set_key(key = "DEMO_KEY"):
+    """Sets api key to key parameter if valid key"""
     url = f"{USDA_URL}/food/0000000?api_key={key}"
     response = requests.get(test_url)
     if (response.status_code == 200):
@@ -263,6 +268,19 @@ def set_key(key = "DEMO_KEY"):
     else:
         pass
 
+def export_to_csv(food_details):
+   """Exports selected food's nutritional facts to export.csv"""
+    fieldnames = set()
+    for entry in food_details:
+        fieldnames.update(entry.keys())
+    fieldnames = list(fieldnames)
+
+    with open(csv_export, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()  # Write headers
+        writer.writerows(food_details)  
+
+ 
 def run_app():
     print("🥗 Welcome to the Smart Nutrition App!")
     print("1️⃣ Search by food name (e.g., '1 cup rice')")
