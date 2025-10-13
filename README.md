@@ -1,5 +1,4 @@
 # Nutrition Analyzer
-Nutrition Analyzer
 An application that scans a food item and gives you information about the product and gives alternative recommendations.
 
 Roles:
