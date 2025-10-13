@@ -453,7 +453,146 @@ def run_app():
         if again != "y":
             print("👋 Goodbye! Stay healthy!")
             break
+def parse_search_query(query: str) -> dict:
+    query = query.strip().lower()
+    filters = []
+    possible_filters = ["low sugar", "low fat", "high protein", "high fiber", "gluten free", "vegan"]
 
+    for f in possible_filters:
+        if f in query:
+            filters.append(f)
+            query = query.replace(f, "").strip()
+
+    return {"food": query, "filters": filters}
+
+def show_macro_pie_chart(food_name: str, macros: dict):
+    if not all(k in macros for k in ("protein", "carbs", "fat")):
+        raise ValueError("macros must contain 'protein', 'carbs', and 'fat' keys.")
+    labels = ["Protein", "Carbs", "Fat"]
+    values = [macros["protein"], macros["carbs"], macros["fat"]]
+    colors = ["#36A2EB", "#FFCE56", "#FF6384"]
+    total = sum(values)
+    if total == 0:
+        raise ValueError("Total macronutrients cannot be zero.")
+    percentages = [v / total * 100 for v in values]
+    plt.figure(figsize=(6, 6))
+    plt.pie(values, labels=[f"{l} ({p:.1f}%)" for l, p in zip(labels, percentages)],
+            colors=colors, autopct="%.1f%%", startangle=140)
+    plt.title(f"Macronutrient Breakdown: {food_name}", fontsize=14)
+    plt.show()
+
+def compare_food_macros(item1_name: str, item1_macros: dict,
+                        item2_name: str, item2_macros: dict):
+    macros = ["protein", "carbs", "fat"]
+    for m in macros:
+        if m not in item1_macros or m not in item2_macros:
+            raise ValueError("Both macro dicts must contain 'protein', 'carbs', and 'fat'.")
+    item1_values = [item1_macros[m] for m in macros]
+    item2_values = [item2_macros[m] for m in macros]
+    total1, total2 = sum(item1_values), sum(item2_values)
+    item1_perc = [v / total1 * 100 for v in item1_values]
+    item2_perc = [v / total2 * 100 for v in item2_values]
+    x = np.arange(len(macros))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    bars1 = ax.bar(x - width/2, item1_values, width, label=f"{item1_name} ({int(total1)}g total)")
+    bars2 = ax.bar(x + width/2, item2_values, width, label=f"{item2_name} ({int(total2)}g total)")
+    for bars, percents in [(bars1, item1_perc), (bars2, item2_perc)]:
+        for bar, p in zip(bars, percents):
+            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5, f"{p:.1f}%",
+                    ha='center', va='bottom', fontsize=9)
+    ax.set_ylabel("Grams")
+    ax.set_title("Macronutrient Comparison")
+    ax.set_xticks(x)
+    ax.set_xticklabels([m.capitalize() for m in macros])
+    ax.legend()
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+    plt.tight_layout()
+    plt.show() 
+
+def create_user_profile():
+    print("Welcome to NutriTrack Setup!")
+    name = input("Enter your name: ").strip().title()
+    age = int(input("Enter your age: "))
+    gender = input("Enter your gender (M/F): ").strip().upper()
+    activity = input("Activity level (low/medium/high): ").strip().lower()
+    goal = input("Goal (lose/maintain/gain): ").strip().lower()
+
+    base = 2000 if gender == "M" else 1800
+    activity_factor = {"low": 1.2, "medium": 1.5, "high": 1.8}.get(activity, 1.3)
+    calories = base * activity_factor
+
+    if goal == "lose":
+        calories -= 300
+    elif goal == "gain":
+        calories += 300
+
+    profile = {"name": name, "age": age, "gender": gender,
+               "activity": activity, "goal": goal,
+               "daily_calories": round(calories)}
+    
+    print(f"\nProfile created for {name}! Estimated calories/day: {profile['daily_calories']}")
+    return profile
+
+def manage_favorites(food_item: str, filename="favorites.json"):
+    food_item = food_item.strip().title()
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            try:
+                favorites = json.load(f)
+            except json.JSONDecodeError:
+                favorites = []
+    else:
+        favorites = []
+    if food_item not in favorites:
+        favorites.append(food_item)
+        with open(filename, "w") as f:
+            json.dump(favorites, f, indent=2)
+        print(f"✅ '{food_item}' added to your favorites list!")
+    else:
+        print(f"ℹ️ '{food_item}' is already in your favorites.")
+        print("\nYour Favorite Foods:")
+    for i, item in enumerate(favorites, 1):
+        print(f"{i}. {item}")
+
+    return favorites
+
+def create_and_manage_favorites(list_name: str, new_items: list[str] = None, filename="favorites_db.json"):
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
+    else:
+        data = {}
+    
+    if list_name not in data:
+        data[list_name] = []
+        print(f"🆕 Created new favorites list: '{list_name}'")
+
+    if new_items:
+        added = 0
+        for item in new_items:
+            food = item.strip().title()
+            if food not in data[list_name]:
+                data[list_name].append(food)
+                added += 1
+        if added:
+            print(f"✅ Added {added} new item(s) to '{list_name}'!")
+        else:
+            print(f"ℹ️ No new items added — all already in '{list_name}'.")
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+
+    print(f"\n📋 Favorites in '{list_name}':")
+    for i, food in enumerate(data[list_name], 1):
+        print(f"{i}. {food}")
+
+    return data[list_name]
 
 # --------------------------------------------------
 # Run the app
