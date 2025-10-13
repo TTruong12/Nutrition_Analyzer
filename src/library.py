@@ -14,6 +14,8 @@ from google.colab import files
 import requests
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
+from typing import List, Dict
+from html.parser import HTMLParser
 
 # --------------------------------------------------
 # === UTILITY FUNCTIONS ===
@@ -71,34 +73,40 @@ def display_nutrition_facts(nutrients: dict):
     formatted = format_nutrition_facts(nutrients)
     print(formatted)
 
-def compare_labels(product_a: dict, product_b: dict) -> dict:
+def calculate_nutri_score_letter(nutrients: dict) -> str:
     """
-    Compare nutrient facts between two food products.
-    
+    Calculates Nutri-Score letter grade (A to E) based on nutrient profile.
+ 
     """
-    if not isinstance(product_a, dict) or not isinstance(product_b, dict):
-        raise ValueError("Both inputs must be dictionaries containing nutrient data.")
+    try:
+        sugar = float(nutrients.get('sugar', 0))
+        sat_fat = float(nutrients.get('saturated_fat', 0))
+        sodium = float(nutrients.get('sodium', 0))
+        fiber = float(nutrients.get('fiber', 0))
+        protein = float(nutrients.get('protein', 0))
+        fruits_veg = float(nutrients.get('fruits_veg_percent', 0))
+    except (TypeError, ValueError):
+        raise ValueError("Invalid nutrient values provided.")
 
-    comparison_result = {}
-    common_nutrients = set(product_a.keys()) & set(product_b.keys())
+    # Negative points
+    negative = sugar * 2 + sat_fat * 3 + sodium * 1.5
 
-    for nutrient in common_nutrients:
-        a_val = product_a.get(nutrient, 0)
-        b_val = product_b.get(nutrient, 0)
+    # Positive points
+    positive = fiber * 2 + protein * 1.5 + fruits_veg * 2
 
-        if not isinstance(a_val, (int, float)) or not isinstance(b_val, (int, float)):
-            raise ValueError(f"Nutrient values must be numeric for '{nutrient}'.")
+    score = round(negative - positive)
 
-        if a_val > b_val:
-            comparison = "higher in A"
-        elif b_val > a_val:
-            comparison = "higher in B"
-        else:
-            comparison = "equal"
-
-        comparison_result[nutrient] = (a_val, b_val, comparison)
-
-    return comparison_result
+    # Map score to Nutri-Score letter
+    if score <= -1:
+        return 'A'
+    elif score <= 2:
+        return 'B'
+    elif score <= 10:
+        return 'C'
+    elif score <= 18:
+        return 'D'
+    else:
+        return 'E'
 
 # --------------------------------------------------
 # === HEALTHIER ALTERNATIVES (NEW MODULAR VERSION) ===
@@ -168,6 +176,35 @@ def display_healthier_alternatives(alternatives: list):
         if alt['url']:
             print(f"   🔗 {alt['url']}")
         print("-" * 60)
+
+def compare_labels(product_a: dict, product_b: dict) -> dict:
+    """
+    Compare nutrient facts between two food products.
+    
+    """
+    if not isinstance(product_a, dict) or not isinstance(product_b, dict):
+        raise ValueError("Both inputs must be dictionaries containing nutrient data.")
+
+    comparison_result = {}
+    common_nutrients = set(product_a.keys()) & set(product_b.keys())
+
+    for nutrient in common_nutrients:
+        a_val = product_a.get(nutrient, 0)
+        b_val = product_b.get(nutrient, 0)
+
+        if not isinstance(a_val, (int, float)) or not isinstance(b_val, (int, float)):
+            raise ValueError(f"Nutrient values must be numeric for '{nutrient}'.")
+
+        if a_val > b_val:
+            comparison = "higher in A"
+        elif b_val > a_val:
+            comparison = "higher in B"
+        else:
+            comparison = "equal"
+
+        comparison_result[nutrient] = (a_val, b_val, comparison)
+
+    return comparison_result
 
 # --------------------------------------------------
 # === USDA + OpenFoodFacts DATA FETCHING ===
@@ -249,6 +286,48 @@ def search_keyword(text: str, keyword: str) -> bool:
         raise ValueError("Both text and keyword must be strings.")
 
     return keyword.lower() in text.lower()
+
+def format_search_results(results: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """
+    Clean and format a list of search result entries containing brand and product names.
+    """
+
+    class HTMLCleaner(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.text_parts = []
+
+        def handle_data(self, data):
+            self.text_parts.append(data)
+
+        def get_clean_text(self):
+            return ''.join(self.text_parts).strip()
+
+    def clean_text(text: str) -> str:
+        if not isinstance(text, str):
+            raise ValueError("Text must be a string.")
+        parser = HTMLCleaner()
+        parser.feed(text)
+        raw = parser.get_clean_text()
+        allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!? -"
+        return ''.join(c for c in raw if c in allowed).strip()
+
+    if not isinstance(results, list):
+        raise ValueError("Input must be a list of dictionaries.")
+
+    formatted = []
+    for entry in results:
+        if not all(k in entry for k in ('brand', 'product')):
+            continue
+
+        brand = clean_text(entry['brand'])
+        product = clean_text(entry['product'])
+
+        if brand and product:
+            formatted.append({'brand': brand, 'product': product})
+
+    return formatted
+
 
 # --------------------------------------------------
 # === BARCODE SCANNING (Colab) ===
