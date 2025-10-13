@@ -211,6 +211,15 @@ def get_openfoodfacts_food(upc: str) -> dict:
         }
     except Exception:
         return {}
+        
+def search_keyword(text: str, keyword: str) -> bool:
+    """
+    Search for a keyword in a block of text.
+    """
+    if not isinstance(text, str) or not isinstance(keyword, str):
+        raise ValueError("Both text and keyword must be strings.")
+
+    return keyword.lower() in text.lower()
 
 # --------------------------------------------------
 # === BARCODE SCANNING (Colab) ===
