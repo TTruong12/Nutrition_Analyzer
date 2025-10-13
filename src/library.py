@@ -14,6 +14,9 @@ from pyzbar.pyzbar import decode
 from PIL import Image, ImageEnhance
 from typing import List, Dict
 from html.parser import HTMLParser
+import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 # --------------------------------------------------
 # === UTILITY FUNCTIONS ===
