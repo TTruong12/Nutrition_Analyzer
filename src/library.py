@@ -255,6 +255,7 @@ def get_usda_food(food_name_or_upc: str, api_key: str) -> dict:
         return {}
 
 
+
 def get_openfoodfacts_food(upc: str) -> dict:
     """Fetch nutrient data from OpenFoodFacts by barcode."""
     try:
@@ -330,12 +331,65 @@ def format_search_results(results: List[Dict[str, str]]) -> List[Dict[str, str]]
     return formatted
 
 
+food_url = "https://api.nal.usda.gov/fdc/v1"
+USDA_API_KEY = "DEMO_KEY"  # Replace with your USDA key
+
+
+def get_food_item(upc): #Theo
+    """Given the universal product code, returns json of details of that item"""
+    url = f"{food_url}/foods/search?api_key={USDA_API_KEY}&query={upc}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        food_data = response.json()
+        return food_data
+    else:
+        print(f"Failed to retrieve data {response.status_code}")
+
+
+
+def generate_alt(upc, nutrient, comparison, ref, filters=None): #Theo
+    """
+    Nutrient = nutrient compared
+    comparison 0=more, 1=less
+    ref: nutrient per ref
+    filters: will implement later
+
+    Example:
+    generate_alt(0000901626026, sugar, 1, serving)
+    Returns food items with less sugar per serving compared to Redbull
+    """
+    init_food = get_food_item(upc)[0]
+    init_nutrient_val = init_food[nutrient]
+
+    url = f"{food_url}/foods/search?api_key={USDA_API_KEY}"
+
+    if comparison == 0:
+        response = requests.get(url+f"&{nutrient}>{init_nutrient_val}&sortBy={nutrient}&sortOrder=desc")
+        return response.json()
+    if comparison == 1:
+        pass
+
+    pass
+
+
+# ----- generate_alt() test ------
+# print(get_food_item(850126007120))
+test_food = get_food_item(850126007120)
+#for key in test_food["foods"][0]["foodNutrients"]:
+#    print(key, ":", test_food["foods"][0]["foodNutrients"])
+print(test_food["foods"][0]["foodNutrients"][1])
+
+
+# print(generate_alt(850126007120, "sugar", 0, "serving"))
+# --------------------------------
+
+
 # --------------------------------------------------
 # === BARCODE SCANNING (Colab) ===
 # --------------------------------------------------
 
 def decode_barcode_from_image():
-    """Upload and decode a barcode image in Colab."""
+    """Upload and decode a barcode image."""
     print("📸 Upload an image with a visible barcode …")
     uploaded = files.upload()
     image_path = list(uploaded.keys())[0]
@@ -600,4 +654,5 @@ def create_and_manage_favorites(list_name: str, new_items: list[str] = None, fil
 # --------------------------------------------------
 # Run the app
 # --------------------------------------------------
-run_app()
+
+#run_app()
