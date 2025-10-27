@@ -7,9 +7,9 @@
 # --------------------------------------------------
 # Install dependencies (only needed once per Colab session)
 # --------------------------------------------------
-!apt-get install -y libzbar0 > /dev/null
-!pip install -q pyzbar pillow requests
-from google.colab import files
+#apt-get install -y libzbar0 > /dev/null
+#pip install -q pyzbar pillow requests
+#from google.colab import files
 
 import requests
 from pyzbar.pyzbar import decode
