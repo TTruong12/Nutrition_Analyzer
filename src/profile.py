@@ -1,6 +1,8 @@
 """
 profile.py
 -----------
+Ben
+------------
 Defines the Profile class that represents a user’s physical data and favorite foods.
 
 Integrates with Project 1’s FoodItem functionality for calorie tracking and management.
