@@ -1,89 +1,100 @@
 """
-food_item.py
+profile.py
 
 Ben
 
-Defines the FoodItem class representing an individual food entry with nutrient data.
+Sets the Profile class that represents a user’s data and favorite foods.
 
-This class integrates with Project 1 nutrition functions for 
-calorie estimation and nutrient management.
 """
 
+from food_item import FoodItem
 
-class FoodItem:
-    """Represents a single food item and its nutrient composition."""
+class Profile:
+    """Represents a user profile with height, weight, and a collection of favorite foods."""
 
-    def __init__(self, name: str, nutrients: dict[str, float]):
+    def __init__(self, weight: float, height: float):
         """
-        Initialize a FoodItem object with parameter validation.
+        Initialize a Profile with weight and height validation.
 
         Args:
-            name (str): Name of the food item.
-            nutrients (dict[str, float]): Nutrient composition, e.g. {"fat": 10, "protein": 5, "carbs": 20}.
+            weight (float): User weight in kilograms.
+            height (float): User height in centimeters.
 
         Raises:
-            ValueError: If name is invalid or nutrients is not a dictionary.
+            ValueError: If weight or height are non-positive.
         """
-        if not name or not isinstance(name, str):
-            raise ValueError("Food name must be a non-empty string.")
-        if not isinstance(nutrients, dict):
-            raise ValueError("Nutrients must be a dictionary with numeric values.")
+        if weight <= 0:
+            raise ValueError("Weight must be positive.")
+        if height <= 0:
+            raise ValueError("Height must be positive.")
 
-        self._name = name
-        self._nutrients = nutrients
+        self._weight = weight
+        self._height = height
+        self._favorites: list[FoodItem] = []
 
-    #Properties 
+    # ---------- Properties ----------
     @property
-    def name(self) -> str:
-        """Get or set the food name."""
-        return self._name
+    def weight(self) -> float:
+        return self._weight
 
-    @name.setter
-    def name(self, new_name: str):
-        if not new_name:
-            raise ValueError("Name cannot be empty.")
-        self._name = new_name
+    @weight.setter
+    def weight(self, new_weight: float):
+        if new_weight <= 0:
+            raise ValueError("Weight must be positive.")
+        self._weight = new_weight
 
     @property
-    def nutrients(self) -> dict[str, float]:
-        """Get or set the nutrient composition."""
-        return self._nutrients
+    def height(self) -> float:
+        return self._height
 
-    @nutrients.setter
-    def nutrients(self, new_nutrients: dict[str, float]):
-        if not isinstance(new_nutrients, dict):
-            raise ValueError("Nutrients must be a dictionary.")
-        self._nutrients = new_nutrients
+    @height.setter
+    def height(self, new_height: float):
+        if new_height <= 0:
+            raise ValueError("Height must be positive.")
+        self._height = new_height
 
-    # Methods
-    def total_calories(self) -> float:
+    @property
+    def favorites(self) -> list[FoodItem]:
+        """Return a copy of the favorite foods list."""
+        return list(self._favorites)
+
+    # ---------- Methods ----------
+    def add_favorite(self, food: FoodItem):
+        """Add a FoodItem to favorites if it’s not already present."""
+        if not isinstance(food, FoodItem):
+            raise TypeError("Favorite must be a FoodItem instance.")
+        if food not in self._favorites:
+            self._favorites.append(food)
+
+    def remove_favorite(self, food_name: str):
+        """Remove a favorite food by its name (case-insensitive)."""
+        self._favorites = [f for f in self._favorites if f.name.lower() != food_name.lower()]
+
+    def manage_favorites(self):
+        """Display all current favorites with nutrient summaries."""
+        print("Favorites for user:")
+        for item in self._favorites:
+            print(f"- {item}")
+
+    def create_and_manage_favorites(self, foods: list[FoodItem]):
         """
-        Calculate estimated total calories based on macronutrients.
-        Uses Project 1 formula logic: 9 kcal/g fat, 4 kcal/g protein, 4 kcal/g carbs.
+        Add multiple FoodItem objects to favorites and show them immediately.
 
-        Returns:
-            float: Estimated total calories.
+        Args:
+            foods (list[FoodItem]): List of FoodItem objects to add.
         """
-        fat = self._nutrients.get("fat", 0)
-        protein = self._nutrients.get("protein", 0)
-        carbs = self._nutrients.get("carbs", 0)
-        return round((fat * 9) + (protein * 4) + (carbs * 4), 2)
+        for food in foods:
+            self.add_favorite(food)
+        self.manage_favorites()
 
-    def nutrient_summary(self) -> str:
-        """Return a formatted nutrient summary string."""
-        return ", ".join(f"{k}: {v}g" for k, v in self._nutrients.items())
+    def calculate_bmi(self) -> float:
+        """Compute Body Mass Index (BMI) using metric units."""
+        height_m = self._height / 100
+        return round(self._weight / (height_m ** 2), 2)
 
-    def update_nutrient(self, key: str, value: float):
-        """Update a single nutrient’s value."""
-        if key not in self._nutrients:
-            raise KeyError(f"{key} is not a valid nutrient.")
-        if value < 0:
-            raise ValueError("Nutrient values must be non-negative.")
-        self._nutrients[key] = value
-
-    # String Representations 
+    # ---------- String Representations ----------
     def __str__(self):
-        return f"{self._name}: {self.nutrient_summary()}"
+        return f"Profile(Weight={self._weight}kg, Height={self._height}cm, Favorites={len(self._favorites)})"
 
     def __repr__(self):
-        return f"FoodItem(Name={self._name!r}, Nutrients={self._nutrients!r})"
+        return f"Profile(weight={self._weight!r}, height={self._height!r}, favorites={[f.name for f in self._favorites]!r})"
