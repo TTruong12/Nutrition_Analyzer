@@ -1,16 +1,4 @@
-
-
-# Database_Manager - Theo
-# 	Attributes
-# API keys
-# URLs
-
-
-# get_food_item()
-# def get_usda_food
-# def get_openfoodfacts_food
-# def prompt_key
-# def set_key
+# Database_Manager
 
 import requests
 
@@ -77,7 +65,7 @@ class db_manager:
 
     
     def prompt_key(self) -> str:
-        """Prompts user for api key"""
+        """Prompts user for api key or returns default key"""
         test_key = input("Enter API key (Press enter to use default): ")
         if test_key !="":
             return test_key
@@ -85,8 +73,8 @@ class db_manager:
             return self.default_key
 
 #tests
-fc_db = db_manager.foodcentral()
-print(repr(fc_db))
+#fc_db = db_manager.foodcentral()
+#print(repr(fc_db))
 
 #print(fc_db.url)
 #print(fc_db.get_food_item(534358))
