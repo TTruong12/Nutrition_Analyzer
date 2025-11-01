@@ -21,7 +21,6 @@ import numpy as np
 # --------------------------------------------------
 # === UTILITY FUNCTIONS ===
 # --------------------------------------------------
-# Aneesh Parkhie comment on code below: Consider logging or warning if a nutrient key is missing (for debugging)
 def convert_to_imperial_units(nutrients: dict) -> dict:
     """Convert metric nutrient values (per 100 g) into imperial units (per oz)."""
     if not nutrients:
