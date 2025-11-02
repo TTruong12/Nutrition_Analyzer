@@ -32,7 +32,7 @@ class Profile:
         self._height = height
         self._favorites: list[FoodItem] = []
 
-    # ---------- Properties ----------
+    #Properties 
     @property
     def weight(self) -> float:
         return self._weight
@@ -58,7 +58,7 @@ class Profile:
         """Return a copy of the favorite foods list."""
         return list(self._favorites)
 
-    # ---------- Methods ----------
+    
     def add_favorite(self, food: FoodItem):
         """Add a FoodItem to favorites if it’s not already present."""
         if not isinstance(food, FoodItem):
@@ -92,7 +92,7 @@ class Profile:
         height_m = self._height / 100
         return round(self._weight / (height_m ** 2), 2)
 
-    # ---------- String Representations ----------
+    
     def __str__(self):
         return f"Profile(Weight={self._weight}kg, Height={self._height}cm, Favorites={len(self._favorites)})"
 
