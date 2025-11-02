@@ -1,0 +1,119 @@
+import matplotlib.pyplot as plt
+from html.parser import HTMLParser
+from typing import List, Dict
+
+class Graphics:
+    """
+    A visual and formatting utility component for the Nutrition Analyzer App.
+    Handles nutrition display, search result formatting, and macronutrient charts.
+    """
+
+    def __init__(self, theme: str = "default"):
+        if not isinstance(theme, str) or not theme.strip():
+            raise ValueError("Theme must be a non-empty string.")
+        self._theme = theme.strip().lower()
+
+    @property
+    def theme(self) -> str:
+        return self._theme
+
+    @theme.setter
+    def theme(self, value: str) -> None:
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Theme must be a valid string.")
+        self._theme = value.strip().lower()
+
+    def __str__(self) -> str:
+        return f"Graphics Display (theme='{self._theme}')"
+
+    def __repr__(self) -> str:
+        return f"Graphics(theme='{self._theme}')"
+
+    def show(self, message: str) -> None:
+        """
+        Display a general message to the user.
+        """
+        print(f"[{self._theme.upper()}] {message}")
+
+    def display_nutrition_facts(self, nutrients: dict) -> None:
+        """
+        Display formatted nutrition facts to the console.
+        """
+        from nutrition_functions import format_nutrition_facts
+        formatted = format_nutrition_facts(nutrients)
+        print(formatted)
+
+    def display_healthier_alternatives(self, alternatives: list) -> None:
+        """
+        Display a list of healthier alternative food items.
+        """
+        if not alternatives:
+            print("⚠️ No alternatives available to display.")
+            return
+        print(f"✅ Top {len(alternatives)} Healthier Alternatives:")
+        print("=" * 60)
+        for alt in alternatives:
+            print(f"🍎 {alt['brand']} – {alt['name']}")
+            print(f"   Calories: {alt['calories']} kcal/100 g")
+            print(f"   Sugars:   {alt['sugars']} g")
+            print(f"   Fat:      {alt['fat']} g")
+            if alt.get('url'):
+                print(f"   🔗 {alt['url']}")
+            print("-" * 60)
+
+    def clean_text(self, text: str) -> str:
+        """
+        Remove HTML artifacts and non-allowed characters from a string.
+        """
+
+        class HTMLCleaner(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.text_parts = []
+            def handle_data(self, data):
+                self.text_parts.append(data)
+            def get_clean_text(self):
+                return ''.join(self.text_parts).strip()
+
+        if not isinstance(text, str):
+            raise ValueError("Text must be a string.")
+        parser = HTMLCleaner()
+        parser.feed(text)
+        raw = parser.get_clean_text()
+        allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!? -"
+        return ''.join(c for c in raw if c in allowed).strip()
+
+    def format_search_results(self, results: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        Normalize brand and product names in search results for display.
+        """
+        if not isinstance(results, list):
+            raise ValueError("Input must be a list of dictionaries.")
+        formatted = []
+        for entry in results:
+            if not all(k in entry for k in ('brand', 'product')):
+                continue
+            brand = self.clean_text(entry['brand'])
+            product = self.clean_text(entry['product'])
+            if brand and product:
+                formatted.append({'brand': brand, 'product': product})
+        return formatted
+
+    def show_macro_pie_chart(self, food_name: str, macros: dict) -> None:
+        """
+        Display a pie chart for macronutrient ratios.
+        """
+        if not all(k in macros for k in ("protein", "carbs", "fat")):
+            raise ValueError("macros must contain 'protein', 'carbs', and 'fat' keys.")
+        labels = ["Protein", "Carbs", "Fat"]
+        values = [macros["protein"], macros["carbs"], macros["fat"]]
+        colors = ["#36A2EB", "#FFCE56", "#FF6384"]
+        total = sum(values)
+        if total == 0:
+            raise ValueError("Total macronutrients cannot be zero.")
+        percentages = [v / total * 100 for v in values]
+        plt.figure(figsize=(6, 6))
+        plt.pie(values, labels=[f"{l} ({p:.1f}%)" for l, p in zip(labels, percentages)],
+                colors=colors, autopct="%.1f%%", startangle=140)
+        plt.title(f"Macronutrient Breakdown: {food_name}", fontsize=14)
+        plt.show()
