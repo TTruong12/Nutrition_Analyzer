@@ -180,6 +180,47 @@ class PackagedFood(FoodItem):
         base = super().nutrient_summary()
         return f"{base} (per serving) x {self._servings} serving(s)"
 
+class FoundationFoodItem(FoodItem):
+    """
+    Represents a USDA foundational food item.
+
+    Adds subclass-specific attributes:
+    - common_name: everyday food name used by consumers
+    - scientific_name: formal botanical/biological name
+
+    Also sets:
+    - foodClass = "Foundational"
+    """
+
+    def __init__(
+        self,
+        name: str,
+        nutrients: Dict[str, float],
+        common_name: str,
+        scientific_name: str,
+    ):
+        # Call FoodItem initializer (handles name + nutrients validation)
+        super().__init__(name=name, nutrients=nutrients)
+
+        # Subclass-specific validation
+        if not common_name:
+            raise ValueError("Common name cannot be empty.")
+        if not scientific_name:
+            raise ValueError("Scientific name cannot be empty.")
+
+        # New attributes
+        self.common_name = common_name
+        self.scientific_name = scientific_name
+
+        # Fixed subclass attribute
+        self.foodClass = "Foundational"
+
+    def nutrient_summary(self) -> str:
+        """
+        Override nutrient_summary() to include subclass information.
+        """
+        base = super().nutrient_summary()
+        return f"{base} | Common: {self.common_name}, Scientific: {self.scientific_name}"
 
 
 # Derived class + composition
