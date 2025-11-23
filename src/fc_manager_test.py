@@ -3,7 +3,7 @@ from db_manager import DBManager
 from foodcentral_manager import FCManager
 
 class invalid_test_db(DBManager):
-
+    """do not use. Only to demonstate absrract class enforcement"""
     def __init__(self, url, key, default_key):
         super().__init__(url, key, default_key)
 
@@ -26,8 +26,8 @@ class invalid_test_db(DBManager):
 
 
 #working fc test
-fc_db = FCManager("DEMO_KEY")
-print(repr(fc_db))
-print(fc_db.get_item(534358))
+fc_db = FCManager("of0bq8jn7Kmnfr7hsoTSw9lC3Guu7YYa7YcQ9IFX")
+# print(repr(fc_db))
+print(fc_db.get_item("534358")) #should print a dictionary of details for the "NUT 'N BERRY MIX" item
 
 

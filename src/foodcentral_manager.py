@@ -1,9 +1,14 @@
 from db_manager import DBManager
 import food_item
 import requests
+from dataclasses import dataclass
+
+
 
 class FCManager(DBManager):
-
+    """
+    Manages GET calls to USDA's Food Central Database
+    """
     def __init__(self, key = "DEMO_KEY"):
         super().__init__("https://api.nal.usda.gov/fdc/v1", key, "DEMO_KEY")
         
@@ -32,7 +37,7 @@ class FCManager(DBManager):
             print(f"Error. Status Code: {response.status_code}\nURL: {test_url}")
 
     def create_food_item(self, upc):
-        """"""
+        """creates a class for """
         food_dict = self.get_item(upc)
         
         match food_dict["dataType"]:
@@ -43,9 +48,9 @@ class FCManager(DBManager):
             case _:
                 return food_item.FoodItem(food_dict["description"], food_dict["foodNutrients"])
             
-    def get_item(self, upc):
-        """Given the universal product code, returns dictionary of details of that item"""
-        request_url = f"{self.url}/food/{upc}?api_key={self.key}"
+    def get_item(self, fdcID):
+        """Given the Food Central Database ID, returns dictionary of details of that item"""
+        request_url = f"{self.url}/food/{fdcID}?api_key={self.key}"
         print("Retrieving...")
         response = requests.get(request_url)
 
@@ -55,6 +60,30 @@ class FCManager(DBManager):
         else:
             print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
     
+
+    # def searchDB(self, query, key = 0):
+    #     """Finds food items in FCDB that match search conditions"""
+    #     request_url = ""
+
+    #     if key == 0:
+    #         query = query.strip().replace(" ", "%20")
+    #         request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}?"
+    #     elif key == 1:
+    #         if query.isnumeric():
+    #             request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}"
+    #         else:
+    #             print("Invalid UPC")
+    #             return
+    #     print("Retrieving...")
+    #     response = requests.get(request_url)
+
+    #     if response.status_code == 200:
+    #         food_data = response.json()
+    #         return food_data
+    #     else:
+    #         print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
+    #         # print(response.text)
+        
     def prompt_key(self) -> str:
         """Prompts user for api key or returns default key"""
         test_key = input("Enter API key (Press enter to use default): ")
