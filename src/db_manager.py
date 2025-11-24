@@ -1,69 +1,45 @@
 # Database_Manager
+from abc import ABC, abstractmethod
 
-import requests
-
-class db_manager:
+class DBManager(ABC):
     """
-    Manages GET calls to food central API
+    Base class for all external database managers.
+    Primarily manages GET calls to APIs
     Requires: requests library
     """
+
     def __init__(self, url, key, default_key):
-        self.__url = url
-        self.__key = key
-        self.__default_key = default_key 
+        self._url = url
+        self._key = key
+        self._default_key = default_key 
 
-    @classmethod
-    def foodcentral(cls, key = "DEMO_KEY"):
-        return cls("https://api.nal.usda.gov/fdc/v1", key, "DEMO_KEY")
-
-    def __repr__(self):
-        return f"db_manager | URL: {self.url} API Key: {self.key}"    
     
+    @abstractmethod
+    def __repr__(self) -> str:
+        pass
 
     @property
     def url(self):
-        return self.__url
+        return self._url
     
     @property
     def key(self):
-        return self.__key
+        return self._key
     
     @property
     def default_key(self):
-        return self.__default_key
+        return self._default_key
 
     @key.setter
-    def key(self, key = "DEMO_KEY"):
-        """Sets api key to key parameter if valid key. Resets key to DEMO_KEY if key is unspecified."""
-        if key == "DEMO_KEY" or key == "":
-            key = self.prompt_key()
-        print("Validating...")
-
-        test_url = f"{self.url}/food/534358?api_key={key}" 
-        
-        response = requests.get(test_url)
-        if (response.status_code == 200):
-            self.__key = key
-            print(f"Success. Status Code: {response.status_code}")
-        else:
-            print(f"Error. Status Code: {response.status_code}\nURL: {test_url}")
-
-
+    @abstractmethod
+    def key(self, key):
+        pass
     
-    def get_food_item(self, upc):
-        """Given the universal product code, returns dictionary of details of that item"""
-        request_url = f"{self.url}/food/{upc}?api_key={self.key}"
-        print("Retrieving...")
-        response = requests.get(request_url)
-
-        if response.status_code == 200:
-            food_data = response.json()
-            return food_data
-        else:
-            print(f"Failed to retrieve data {response.status_code}\nURL: {request_url}")
+    @abstractmethod
+    def get_item(self):
+        pass
 
 
-    
     def prompt_key(self) -> str:
         """Prompts user for api key or returns default key"""
         test_key = input("Enter API key (Press enter to use default): ")
