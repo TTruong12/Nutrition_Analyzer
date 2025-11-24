@@ -1,0 +1,139 @@
+# Nutrition Analyzer - Architecture Diagram
+
+## Complete System Architecture
+
+This document explains how the Nutrition Analyzer project uses inheritance, polymorphism, composition, and basic design patterns to structure the codebase.
+
+---
+
+## 1. Inheritance Hierarchies and Rationale
+
+### 1.1 External Data Access: `DBManager` → `FCManager`
+
+**`DBManager` (abstract base class)**  
+Defined in `db_manager.py`, `DBManager` represents the general concept of an external database/API client. 
+It stores a base URL, an API key, and a default key, and declares abstract methods that all concrete managers must implement, including `get_item`, `__repr__`, and an abstract `key` setter. 
+
+**`FCManager(DBManager)`**  
+Defined in `foodcentral_manager.py`, `FCManager` is a concrete subclass for the USDA FoodData Central API. 
+It implements `get_item` to call the USDA endpoint and parse the response, and provides its own `__repr__` describing the configured USDA manager. 
+
+
+**Rationale**  
+All external data sources share common behavior (URL, keys, a way to fetch an item), but differ in API endpoints, parameters, and response structure. 
+Putting shared logic in `DBManager` and specific logic in `FCManager` avoids duplication and makes it easy to add new data sources later while keeping a consistent interface.
+
+---
+
+### 1.2 Domain Model: `FoodItem` → `BrandedFoodItem`
+
+**`FoodItem`**  
+Defined in `food_item.py`, `FoodItem` represents a generic food item with a name and nutrient composition (stored as a dict).
+ It provides calorie calculation (`total_calories`), a formatted `nutrient_summary`, and `update_nutrient` with validation.  
+
+**`BrandedFoodItem(FoodItem)`**  
+Defined in `BrandedFoodItem.txt`, this subclass extends `FoodItem` with brand-specific fields: brand name, ingredient list, UPC/barcode, and a `_food_class` label of `"Branded"`. 
+It adds methods and properties for these extra attributes and overrides `__str__`/`__repr__` to include branding details. 
+
+**Rationale**  
+A branded product *is a* food item with additional metadata. Both `FoodItem` and `BrandedFoodItem` need calorie logic and nutrient summaries, but only branded items need UPCs and ingredients. 
+Inheriting from `FoodItem` keeps common behavior in one place and lets branded items specialize without duplicating code.
+
+---
+
+## 2. Why Specific Methods Are Polymorphic
+
+- Polymorphism appears where code uses a base type but the actual behavior depends on the concrete subclass.
+
+### 2.1 `DBManager.get_item`
+
+- Client code can be written against the `DBManager` interface:
+
+from db_manager import DBManager
+
+def fetch_description(db: DBManager, item_id: str) -> str:
+    data = db.get_item(item_id)  # polymorphic
+    brand = data.get("brandOwner", "Generic")
+    name = data.get("description", "Unknown")
+    return f"{brand} – {name}"
+
+### 2.2 __str__ / __repr__ on FoodItem vs BrandedFoodItem
+
+A function can accept a FoodItem and still work with any subclass:
+
+- If item is a plain FoodItem, __str__ shows the basic nutrient summary. 
+- If it is a BrandedFoodItem, the overridden __str__ includes brand and UPC details. 
+- The caller just uses the base type, but polymorphic dispatch selects the appropriate implementation at runtime.
+
+### 2.3 Analyzer Methods over Flexible Nutrient Data
+
+- NutritionAnalyzer is constructed with a nutrient dictionary rather than with inheritance, but its methods are still “polymorphic” in a duck-typed sense: any dict with the expected keys (calories, protein, fat, carbohydrates, etc.) can be passed in and processed. 
+- Methods like compare_labels and calculate_nutri_score_letter focus on the interface (keys/values) rather than the exact type of the object.
+
+## 3. Composition vs. Inheritance Decisions
+
+### 3.1 Profile Uses Composition for Favorites
+
+- The Profile class maintains _favorites, a list of FoodItem-like objects. 
+- It provides methods such as add_favorite, remove_favorite, and manage_favorites, and also calculates BMI from height and weight.
+
+### 3.2 NutritionAnalyzer Composes Nutrient Data
+
+- NutritionAnalyzer stores a nutrients dict and derives _food_name and _brand_name from it. 
+- It does not inherit from FoodItem even though both deal with nutrients.
+
+     Why not inheritance?
+
+        - NutritionAnalyzer is a service object that analyzes data (calculates scores, converts units, compares labels).
+
+        - FoodItem is a domain entity representing what the food is.
+
+        - Keeping them separate means the analyzer can operate on any compatible nutrient dict (including API responses), not just FoodItem instances.
+
+### 3.3 Where Inheritance Was Preferred
+
+- In contrast, DBManager → FCManager and FoodItem → BrandedFoodItem are true “is-a” relationships:
+
+- A FCManager is a type of DBManager.
+
+- A BrandedFoodItem is a type of FoodItem.
+
+- These hierarchies use inheritance instead of composition because they share a core interface and behavior that should be enforced and reused.
+
+## 4. Design Pattern Usage
+### 4.1 Abstract Base Class as Interface
+
+- DBManager uses the abc module to declare abstract methods such as get_item. This is the classic “interface via ABC” pattern in Python:
+
+     Prevents instantiation of incomplete subclasses.
+     Documents exactly what methods a database client must implement.
+     Allows other parts of the code to rely on the DBManager contract. 
+
+
+### 4.2 Factory Method in FCManager
+
+- FCManager includes logic that inspects USDA response fields (like dataType) and decides which domain class (FoodItem vs BrandedFoodItem) to construct. 
+
+This is effectively a simple Factory Method:
+
+- Centralizes object creation based on external data.
+
+- Hides construction details from the rest of the application.
+
+- Makes it easier to support new food types later by updating a single creation function.
+
+### 4.3 Facade-Like Role of NutritionAnalyzer
+
+- NutritionAnalyzer wraps several related operations—unit conversion, formatting nutrition facts, Nutri-Score-like evaluation, and comparisons—behind a single class interface. Instead of calling many separate functions from a utility module, client code interacts with one coherent object. This is similar to a Facade pattern: it simplifies use of a more complex underlying set of calculations.
+
+### 4.4 Aggregation / Composition Pattern
+
+- Profile aggregating a list of FoodItem objects is a straightforward use of aggregation/composition:
+
+- A profile can contain zero or many food items.
+
+- Food items can exist without a profile.
+
+- The relationship is modeled by holding references instead of inheriting.
+
+- This follows the common OOP guideline: prefer composition over inheritance when modeling “has-a” relationships.

@@ -50,6 +50,59 @@ Contribution Guidelines
 Our team collaborates through GitHub using feature branches and pull requests. Each member focuses on specific areas: API integration, user interface, testing, and documentation. Code must follow programming standards, include clear comments, and run error-free. Before merging, at least one peer review is required. The main branch remains stable and is updated only after successful testing. Weekly check-ins ensure progress and task alignment. All commits must have descriptive messages and working examples. Each feature should be well-documented, tested with known barcodes, and contribute to a smooth, user-friendly nutrition analysis experience.
 
 
+```markdown
+## Class Hierarchies
+
+```mermaid
+classDiagram
+    class DBManager {
+        - _url
+        - _key
+        - _default_key
+        + prompt_key()
+        + get_item()*
+    }
+
+    class FCManager {
+        + get_item()
+        + __repr__()
+        + create_food_item()
+    }
+
+    DBManager <|-- FCManager
+
+    class FoodItem {
+        - _name
+        - _nutrients
+        + total_calories()
+        + nutrient_summary()
+        + update_nutrient()
+    }
+
+    class BrandedFoodItem {
+        - _food_class = "Branded"
+        - _brand_name
+        - _ingredients
+        - _upc
+        + describe()
+    }
+
+    FoodItem <|-- BrandedFoodItem
+
+    class Profile {
+        - _weight
+        - _height
+        - _favorites : list[FoodItem]
+        + add_favorite()
+        + remove_favorite()
+        + calculate_bmi()
+    }
+
+    Profile --> "0..*" FoodItem : favorites
+
+* = abstract method from the DBManager interface.
+
+
 
 
 
