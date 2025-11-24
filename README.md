@@ -102,7 +102,107 @@ classDiagram
 
 * = abstract method from the DBManager interface.
 
+Design Decisions
+Why Inheritance for Database Managers and Food Items?
 
+Both database managers and food items share core attributes and behaviors, but differ in important specialization areas.
+
+Database Managers (DBManager → FCManager)
+
+Database managers share:
+
+- API key handling
+- Base URL storage
+- External data retrieval concept
+- Required interface methods (get_item, __repr__)
+
+They differ in:
+
+- API endpoints
+- Request formats
+- Response parsing
+- Authentication behavior
+
+Inheritance provides:
+
+- Shared interface for all data sources
+- Code reuse for API key and URL handling
+- Polymorphic get_item behavior
+- Clear “is-a” relationship
+  (FCManager is a database manager)
+
+Food Items (FoodItem → BrandedFoodItem)
+Food items share:
+
+- Name
+- Nutrient data dictionary
+- Calorie calculations
+- Nutrient summaries:
+
+They differ in:
+
+- Branding information
+- UPC/barcode
+- Ingredient lists
+- Packaging details
+
+Inheritance provides:
+
+- Shared nutrient logic from FoodItem
+- Polymorphic string representation
+- Cleaner specialization without duplicating code
+- Clear “is-a” relationship
+(BrandedFoodItem is a food item)
+
+Why Composition for Profile and NutritionAnalyzer?
+
+Profile manages:
+
+- User-specific data (height/weight)
+- Favorites list of foods
+
+It is not:
+- A type of food item
+- A nutritional data source
+
+Composition provides:
+
+- Ability to store many FoodItem objects
+- Flexible favorites management
+- Separation between user and food domain models
+
+NutritionAnalyzer operates on:
+
+- Nutrient dictionaries
+- Parsed API data
+
+It is not:
+- A food item itself
+- A database manager
+
+Composition provides:
+
+- Flexibility to analyze any valid nutrient dict
+- Ability to work with API data directly
+- Clear separation between data storage and data analysis
+
+Balancing Inheritance vs. Composition
+
+Use Inheritance When:
+
+- A clear “is-a” relationship exists
+
+- Shared behavior belongs in a base class
+
+- Polymorphic behavior is needed
+(e.g., get_item dispatching to different APIs)
+
+Use Composition When:
+
+- A class has or manages other objects
+- Coordinating multiple types
+- The relationship is more important than the type
+(e.g., a user having favorite foods)
 
 
 
