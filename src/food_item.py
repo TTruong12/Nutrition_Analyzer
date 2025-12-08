@@ -13,66 +13,11 @@ from typing import Dict, List
 
 
 
-# Abstract base class
 
-
-class NutritionItem(ABC):
-    """
-    Abstract base class for anything that has a name and calories.
-
-    Subclasses must implement:
-    - total_calories()
-    - nutrient_summary()
-    """
-
-    def __init__(self, name: str):
-        if not name or not isinstance(name, str):
-            raise ValueError("Name must be a non-empty string.")
-        self._name = name
-
-    @property
-    def name(self) -> str:
-        """Get or set the item name."""
-        return self._name
-
-    @name.setter
-    def name(self, new_name: str) -> None:
-        if not new_name:
-            raise ValueError("Name cannot be empty.")
-        self._name = new_name
-
-    @abstractmethod
-    def total_calories(self) -> float:
-        """
-        Return the total calories for this item.
-        Must be implemented by subclasses.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def nutrient_summary(self) -> str:
-        """
-        Return a human-readable nutrient summary.
-        Must be implemented by subclasses.
-        """
-        raise NotImplementedError
-
-    def __str__(self) -> str:
-        return f"{self.name}: {self.nutrient_summary()}"
-
-    def __repr__(self) -> str:
-        cls_name = self.__class__.__name__
-        return f"{cls_name}(name={self.name!r})"
-
-
-
-# Base concrete class 
-
-
-class FoodItem(NutritionItem):
+class FoodItem():
     """Represents a single food item and its nutrient composition."""
 
-    def __init__(self, name: str, nutrients: Dict[str, float]):
+    def __init__(self, name: str, nutrients: Dict):
         """
         Initialize a FoodItem object with parameter validation.
 
@@ -84,12 +29,12 @@ class FoodItem(NutritionItem):
         Raises:
             ValueError: If name is invalid or nutrients is not a dictionary.
         """
-        super().__init__(name=name)
+        self._name = name
+        self._nutrients = nutrients
 
-        if not isinstance(nutrients, dict):
-            raise ValueError("Nutrients must be a dictionary with numeric values.")
-
-        self._nutrients: Dict[str, float] = nutrients
+    @property
+    def name(self):
+        return self._name
 
     @property
     def nutrients(self) -> Dict[str, float]:
@@ -223,38 +168,67 @@ class FoundationFoodItem(FoodItem):
         return f"{base} | Common: {self.common_name}, Scientific: {self.scientific_name}"
 
 
-# Derived class + composition
 
+class BrandedFood(FoodItem):
 
-class Recipe(NutritionItem):
-    """
-    A recipe is a NutritionItem composed of other NutritionItem ingredients.
-
-    This demonstrates both:
-    - Inheritance 
-    - Composition 
-    """
-
-    def __init__(self, name: str, ingredients: List[NutritionItem] | None = None):
-        super().__init__(name=name)
-        self._ingredients: List[NutritionItem] = ingredients or []
+    def __init__(
+        self,
+        name: str,
+        brand_name: str,
+        nutrients: Dict[str, float],
+        ingredients: List[str],
+        upc: str
+    ):
+        super().__init__(name=name, nutrients=nutrients)
+        self._food_class = "Branded"
+        self._brand_name = brand_name.strip()
+        self._ingredients = [i.strip() for i in ingredients]
+        self._upc = upc.strip()
 
     @property
-    def ingredients(self) -> List[NutritionItem]:
+    def food_class(self) -> str:
+        return self._food_class
+
+    @property
+    def brand_name(self) -> str:
+        return self._brand_name
+
+    @brand_name.setter
+    def brand_name(self, value: str) -> None:
+        value = value.strip()
+        if not value:
+            raise ValueError("Brand name cannot be empty.")
+        self._brand_name = value
+
+    @property
+    def ingredients(self) -> List[str]:
         return list(self._ingredients)
 
-    def add_ingredient(self, item: NutritionItem) -> None:
-        """Add a NutritionItem (FoodItem, PackagedFood, another Recipe, etc.)"""
-        self._ingredients.append(item)
+    @ingredients.setter
+    def ingredients(self, value: List[str]) -> None:
+        if not isinstance(value, list):
+            raise TypeError("Ingredients must be a list of strings.")
+        self._ingredients = [str(i).strip() for i in value]
 
-    def total_calories(self) -> float:
-        return round(sum(item.total_calories() for item in self._ingredients), 2)
+    @property
+    def upc(self) -> str:
+        return self._upc
 
-    def nutrient_summary(self) -> str:
-        if not self._ingredients:
-            return "no ingredients"
-        inner = "; ".join(item.nutrient_summary() for item in self._ingredients)
-        return f"ingredients: [{inner}]"
+    @upc.setter
+    def upc(self, value: str) -> None:
+        value = value.strip()
+        if not value:
+            raise ValueError("UPC cannot be empty.")
+        self._upc = value
+
+    def describe(self) -> str:
+        return f"{self.brand_name} {self.name} [{self.food_class}] (UPC: {self.upc})"
+
+    def __str__(self) -> str:
+        return f"{self.brand_name} {self.name} ({self.food_class})"
 
     def __repr__(self) -> str:
-        return f"Recipe(name={self.name!r}, ingredients={len(self._ingredients)} items)"
+        return (
+            f"BrandedFoodItem(name={self.name!r}, brand_name={self.brand_name!r}, "
+            f"upc={self.upc!r}, nutrients={self.nutrients!r})"
+        )

@@ -1,3 +1,4 @@
+from food_item import FoodItem
 from typing import Dict, List
 
 class BrandedFoodItem(FoodItem):
