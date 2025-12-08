@@ -117,7 +117,7 @@ class FCManager(DBManager):
 
 
 #test
-x = FCManager("of0bq8jn7Kmnfr7hsoTSw9lC3Guu7YYa7YcQ9IFX")
-test_q = x.searchDB("Kit Kat",0)
-for i in test_q:
-    print(i)
+# x = FCManager("DEMO_KEY")
+# test_q = x.searchDB("Kit Kat",0)
+# for i in test_q:
+#     print(i)
