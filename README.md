@@ -34,7 +34,6 @@ Many consumers struggle to understand nutrition labels and compare food products
 
 
 Setup Instructions:
-(as of now this program only works fully in Google Colab)
 You will need to obtain your own API key by signing up at the USDA API portal (https://fdc.nal.usda.gov/api-key-signup).
 Then, you will need to insert your own key into the USDA_API_KEY field.
 There is a DEMO_KEY available, but it only works a limited amount of time.
