@@ -6,7 +6,7 @@ class invalid_test_db(DBManager):
     """do not use. Only to demonstate absrract class enforcement"""
     def __init__(self, url, key, default_key):
         super().__init__(url, key, default_key)
-
+    
     def __repr__(self) -> str:
         return f"invalid database manager {self.url}"
 

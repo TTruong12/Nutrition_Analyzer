@@ -1,5 +1,5 @@
 from db_manager import DBManager
-import food_item
+import food_item 
 import requests
 from dataclasses import dataclass
 
@@ -36,17 +36,20 @@ class FCManager(DBManager):
         else:
             print(f"Error. Status Code: {response.status_code}\nURL: {test_url}")
 
-    def create_food_item(self, upc):
-        """creates a class for """
-        food_dict = self.get_item(upc)
+    def create_food_item(self, food_data):
+        """creates a FoodItem object from food central database"""
+        if type(food_data) != dict:
+            print('Invalid food data')
+            return
+
         
-        match food_dict["dataType"]:
+        match food_data["dataType"]:
             case "Foundation":
-                return food_item.FoundationFood(food_dict["description"], food_dict["foodNutrients"], food_dict["scientificName"])
+                return food_item.FoundationFood(food_data["description"], food_data["foodNutrients"], food_data["scientificName"])
             case "Branded": 
-                return food_item.BrandedFood(food_dict["brandOwner"], food_dict["foodNutrients"], food_dict["ingredients"])
+                return food_item.BrandedFood(food_data["description"], food_data["brandOwner"], food_data["foodNutrients"], food_data["ingredients"], food_data["gtinUpc"])
             case _:
-                return food_item.FoodItem(food_dict["description"], food_dict["foodNutrients"])
+                return food_item.FoodItem(food_data["description"], food_data["foodNutrients"])
             
     def get_item(self, fdcID):
         """Given the Food Central Database ID, returns dictionary of details of that item"""
@@ -61,28 +64,44 @@ class FCManager(DBManager):
             print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
     
 
-    # def searchDB(self, query, key = 0):
-    #     """Finds food items in FCDB that match search conditions"""
-    #     request_url = ""
+    def searchDB(self, query:str, key = 0):
+        """Finds food items in FCDB that match search conditions
+        key = 0: Searches by keyword
+        key = 1: Searches by UPC
+        
+        Returns food item object if one matching search result
+        and returns list of food item objects if multiple matches 
+        """
+        request_url = ""
 
-    #     if key == 0:
-    #         query = query.strip().replace(" ", "%20")
-    #         request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}?"
-    #     elif key == 1:
-    #         if query.isnumeric():
-    #             request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}"
-    #         else:
-    #             print("Invalid UPC")
-    #             return
-    #     print("Retrieving...")
-    #     response = requests.get(request_url)
+        if key == 0:
+            query = query.strip().replace(" ", "%20")
+            request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}?"
+        elif key == 1:
+            query = query.strip()
+            if query.isnumeric():
+                request_url = f"{self.url}/foods/search?api_key={self.key}&query=gtinUPC%3A%20{query}"
+            else:
+                print("Invalid UPC")
+                return
+        print("Retrieving...")
+        response = requests.get(request_url)
 
-    #     if response.status_code == 200:
-    #         food_data = response.json()
-    #         return food_data
-    #     else:
-    #         print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
-    #         # print(response.text)
+        if response.status_code == 200:
+            food_data = response.json()
+
+            if food_data['totalHits'] == 0:
+                print("Food item not found")
+            elif food_data['totalHits'] == 1:
+                return food_item(food_data['foods']['fdcID'])
+            elif food_data['totalHits'] > 1:
+                foodlist = []
+                for i in range(len(food_data['foods'])):
+                    foodlist.append(self.create_food_item(food_data['foods'][i]))
+                return foodlist
+        else:
+            print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
+            # print(response.text)
         
     def prompt_key(self) -> str:
         """Prompts user for api key or returns default key"""
@@ -97,3 +116,8 @@ class FCManager(DBManager):
 
 
 
+#test
+# x = FCManager("DEMO_KEY")
+# test_q = x.searchDB("Kit Kat",0)
+# for i in test_q:
+#     print(i)
