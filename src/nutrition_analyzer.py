@@ -48,7 +48,7 @@ class NutritionAnalyzer:
         return self._brand_name
 
     # ---------------------------
-    # Required Methods
+    # Conversions + Nutrition Facts
     # ---------------------------
     def convert_to_imperial_units(self) -> dict:
         """Convert metric nutrient values (per 100 g) into imperial units (per oz)."""
@@ -99,7 +99,9 @@ class NutritionAnalyzer:
         
         return "\n".join(lines)
 
-
+    # ---------------------------
+    # Nutri-Score Calculation
+    # ---------------------------
     def calculate_nutri_score_letter(self) -> str:
         """Calculates Nutri-Score letter grade (A to E) based on nutrient profile."""
 
@@ -132,6 +134,69 @@ class NutritionAnalyzer:
             return 'D'
         else:
             return 'E'
+        
+     # --------------------------------------------------------
+    # Scoring Helpers
+    # --------------------------------------------------------
+    @staticmethod
+    def protein_per_calorie(food):
+        protein = food.nutrients.get("protein", 0)
+        calories = food.total_calories() or 1
+        return protein / calories
+
+    @staticmethod
+    def fat_per_calorie(food):
+        fat = food.nutrients.get("fat", 0)
+        calories = food.total_calories() or 1
+        return fat / calories
+
+    # --------------------------------------------------------
+    # Sorting Helpers
+    # --------------------------------------------------------
+    def sort_high_protein(self, foods):
+        return sorted(
+            foods,
+            key=lambda f: NutritionAnalyzer.protein_per_calorie(f),
+            reverse=True,
+        )
+
+    def sort_low_fat(self, foods):
+        return sorted(
+            foods,
+            key=lambda f: NutritionAnalyzer.fat_per_calorie(f),
+        )
+
+    def sort_low_calorie(self, foods):
+        return sorted(
+            foods,
+            key=lambda f: f.total_calories()
+        )
+
+    # --------------------------------------------------------
+    # Main Alternatives Function
+    # --------------------------------------------------------
+    def find_alternatives(self, fc_manager, keyword: str, limit: int = 5) -> dict:
+        """
+        Uses FCManager search to return 3 types of healthier alternatives:
+          1. Highest protein per calorie
+          2. Lowest fat per calorie
+          3. Lowest calorie overall
+        """
+        results = fc_manager.searchDB(keyword, key=0)
+
+        if not results:
+            return {"error": "No related foods found."}
+
+        high_protein = self.sort_high_protein(results)[:limit]
+        low_fat = self.sort_low_fat(results)[:limit]
+        low_cal = self.sort_low_calorie(results)[:limit]
+
+        return {
+            "highest_protein_per_cal": high_protein,
+            "lowest_fat_per_cal": low_fat,
+            "lowest_calorie": low_cal,
+        }
+
 
 
     def get_healthier_alternatives(self, max_results: int = 3) -> list:
@@ -275,7 +340,16 @@ class NutritionAnalyzer:
                 nutrients["sodium"] = val
                 
         return nutrients
-
+    # ---------------------------
+    # Visual + Macro Breakdown
+    # ---------------------------
+    def create_macro_breakdown(self) -> dict:
+        macros = ['protein', 'fat', 'carbohydrates']
+        values = [self._nutrients.get(m, 0) for m in macros]
+        total = sum(values)
+        if total == 0:
+            return {m: 0 for m in macros}
+        return {m: round(v / total * 100, 2) for m, v in zip(macros, values)}
 
     @staticmethod
     def decode_barcode_from_image():
