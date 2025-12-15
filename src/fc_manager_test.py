@@ -1,6 +1,7 @@
 from db_manager import DBManager
 
 from foodcentral_manager import FCManager
+import unittest
 
 class invalid_test_db(DBManager):
     """do not use. Only to demonstate absrract class enforcement"""
@@ -21,13 +22,15 @@ class invalid_test_db(DBManager):
     def key(self,key):
         self.__key = key
 
-#uncomment line below to test invalid subclass
-#bad_idea = invalid_test_db("asdaadsdsa.com", "errrrr", "kyucxz")
+class testsTT(unittest.TestCase): 
+    def test_invalid_db(self):
+        with self.assertRaises(TypeError):
+            invalid_test_db("asdsa","asdsad"," gdadgadsg")
 
+    def test_fc_db(self):
+        fc_db = FCManager()
+        self.assertIsInstance(fc_db, DBManager)
 
-#working fc test
-fc_db = FCManager()
-# print(repr(fc_db))
-# print(fc_db.get_item("534358")) #prints dictionary of details for the "NUT 'N BERRY MIX" item
-print(fc_db.searchDB("074880030013",1)) #prints BrandedFoodItem, "S & B Shokuhin Company Ltd SAUCE MIX, MEDIUM HOT (Branded)"  
-
+    
+if __name__ == '__main__':
+    unittest.main()
