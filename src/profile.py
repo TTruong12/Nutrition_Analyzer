@@ -1,11 +1,9 @@
 """
 profile.py
 
-Ben
-
 Sets the Profile class that represents a user’s data and favorite foods.
-
 """
+
 
 from food_item import FoodItem
 
@@ -58,25 +56,40 @@ class Profile:
         """Return a copy of the favorite foods list."""
         return list(self._favorites)
 
-    
+
     def add_favorite(self, food: FoodItem):
         """Add a FoodItem to favorites if it’s not already present."""
         if not isinstance(food, FoodItem):
+            print(type(food))
             raise TypeError("Favorite must be a FoodItem instance.")
         if food not in self._favorites:
             self._favorites.append(food)
 
-    def remove_favorite(self, food_name: str):
-        """Remove a favorite food by its name (case-insensitive)."""
-        self._favorites = [f for f in self._favorites if f.name.lower() != food_name.lower()]
+    def remove_favorite(self, value):
+        """Removes a favorite food by its index or name (case-insensitive)."""
+        favorites = self._favorites
+        print(f"Removing {favorites[value].name}")
+        
+        if type(value) == int:
+            temp = []
+            for i in range(len(favorites)):
+                if i != value:
+                    temp.append(favorites[i])
+            self._favorites = temp        
+        elif type(value) == str:
+            self._favorites = [f for f in favorites if f.name.lower() != value.lower()]
+        else:
+            print("Invalid argument")
+            return
+        
 
-    def manage_favorites(self):
+    def display_favorites(self):
         """Display all current favorites with nutrient summaries."""
         print("Favorites for user:")
-        for item in self._favorites:
-            print(f"- {item}")
+        for index, item in self._favorites:
+            print(f"{index+1}.)- {item}")
 
-    def create_and_manage_favorites(self, foods: list[FoodItem]):
+    def create_favorites(self, foods: list[FoodItem]):
         """
         Add multiple FoodItem objects to favorites and show them immediately.
 
@@ -85,7 +98,7 @@ class Profile:
         """
         for food in foods:
             self.add_favorite(food)
-        self.manage_favorites()
+        
 
     def calculate_bmi(self) -> float:
         """Compute Body Mass Index (BMI) using metric units."""
