@@ -1,16 +1,10 @@
 """
 food_item.py
-
 Classes representing food entries with nutrient data.
-
-This extends the original FoodItem from Project 2 to use:
-- An abstract base class using intheritance, polymorphism, and composition.
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
 from typing import Dict, List
-
 
 
 
@@ -25,9 +19,6 @@ class FoodItem():
             name (str): Name of the food item.
             nutrients (dict[str, float]): Nutrient composition,
                 e.g. {"fat": 10, "protein": 5, "carbs": 20}.
-
-        Raises:
-            ValueError: If name is invalid or nutrients is not a dictionary.
         """
         self._name = name
         self._nutrients = nutrients
@@ -47,18 +38,19 @@ class FoodItem():
             raise ValueError("Nutrients must be a dictionary.")
         self._nutrients = new_nutrients
 
-    def total_calories(self) -> float:
-        """
-        Calculate estimated total calories based on macronutrients.
-        Uses Project 1 formula logic: 9 kcal/g fat, 4 kcal/g protein, 4 kcal/g carbs.
+    
+    # def total_calories(self) -> float:
+    #     """
+    #     Calculate estimated total calories based on macronutrients.
+    #     Uses Project 1 formula logic: 9 kcal/g fat, 4 kcal/g protein, 4 kcal/g carbs.
 
-        Returns:
-            float: Estimated total calories.
-        """
-        fat = self._nutrients.get("fat", 0)
-        protein = self._nutrients.get("protein", 0)
-        carbs = self._nutrients.get("carbs", 0)
-        return round((fat * 9) + (protein * 4) + (carbs * 4), 2)
+    #     Returns:
+    #         float: Estimated total calories.
+    #     """
+    #     fat = self._nutrients.get("fat", 0)
+    #     protein = self._nutrients.get("protein", 0)
+    #     carbs = self._nutrients.get("carbs", 0)
+    #     return round((fat * 9) + (protein * 4) + (carbs * 4), 2)
 
     def nutrient_summary(self) -> str:
         """Return a formatted nutrient summary string."""
@@ -66,13 +58,13 @@ class FoodItem():
             return "no nutrient data"
         return ", ".join(f"{k}: {v}g" for k, v in self._nutrients.items())
 
-    def update_nutrient(self, key: str, value: float) -> None:
-        """Update a single nutrient’s value."""
-        if key not in self._nutrients:
-            raise KeyError(f"{key} is not a valid nutrient.")
-        if value < 0:
-            raise ValueError("Nutrient values must be non-negative.")
-        self._nutrients[key] = value
+    # def update_nutrient(self, key: str, value: float) -> None:
+    #     """Update a single nutrient’s value."""
+    #     if key not in self._nutrients:
+    #         raise KeyError(f"{key} is not a valid nutrient.")
+    #     if value < 0:
+    #         raise ValueError("Nutrient values must be non-negative.")
+    #     self._nutrients[key] = value
 
     def __repr__(self) -> str:
         return f"FoodItem(name={self.name!r}, nutrients={self._nutrients!r})"
@@ -82,48 +74,48 @@ class FoodItem():
 # Derived class: PackagedFood
 
 
-class PackagedFood(FoodItem):
-    """
-    Represents a packaged food item with servings.
+# class PackagedFood(FoodItem):
+#     """
+#     Represents a packaged food item with servings.
 
-    Inherits nutrient logic from FoodItem but allows multiple servings
-    and optional barcode information.
-    """
+#     Inherits nutrient logic from FoodItem but allows multiple servings
+#     and optional barcode information.
+#     """
 
-    def __init__(
-        self,
-        name: str,
-        nutrients_per_serving: Dict[str, float],
-        servings: float = 1.0,
-        barcode: str | None = None,
-    ):
-        super().__init__(name=name, nutrients=nutrients_per_serving)
-        if servings <= 0:
-            raise ValueError("Servings must be positive.")
-        self._servings = servings
-        self.barcode = barcode
+#     def __init__(
+#         self,
+#         name: str,
+#         nutrients_per_serving: Dict[str, float],
+#         servings: float = 1.0,
+#         barcode: str | None = None,
+#     ):
+#         super().__init__(name=name, nutrients=nutrients_per_serving)
+#         if servings <= 0:
+#             raise ValueError("Servings must be positive.")
+#         self._servings = servings
+#         self.barcode = barcode
 
-    @property
-    def servings(self) -> float:
-        return self._servings
+#     @property
+#     def servings(self) -> float:
+#         return self._servings
 
-    @servings.setter
-    def servings(self, value: float) -> None:
-        if value <= 0:
-            raise ValueError("Servings must be positive.")
-        self._servings = value
+#     @servings.setter
+#     def servings(self, value: float) -> None:
+#         if value <= 0:
+#             raise ValueError("Servings must be positive.")
+#         self._servings = value
 
-    def total_calories(self) -> float:
-        """
-        Total calories = calories per serving * number of servings.
-        Reuses FoodItem.total_calories() via super().
-        """
-        per_serving = super().total_calories()
-        return round(per_serving * self._servings, 2)
+#     def total_calories(self) -> float:
+#         """
+#         Total calories = calories per serving * number of servings.
+#         Reuses FoodItem.total_calories() via super().
+#         """
+#         per_serving = super().total_calories()
+#         return round(per_serving * self._servings, 2)
 
-    def nutrient_summary(self) -> str:
-        base = super().nutrient_summary()
-        return f"{base} (per serving) x {self._servings} serving(s)"
+#     def nutrient_summary(self) -> str:
+#         base = super().nutrient_summary()
+#         return f"{base} (per serving) x {self._servings} serving(s)"
 
 class FoundationFoodItem(FoodItem):
     """
@@ -142,7 +134,7 @@ class FoundationFoodItem(FoodItem):
         name: str,
         nutrients: Dict[str, float],
         common_name: str,
-        scientific_name: str,
+        scientific_name: str
     ):
         # Call FoodItem initializer (handles name + nutrients validation)
         super().__init__(name=name, nutrients=nutrients)
@@ -169,22 +161,46 @@ class FoundationFoodItem(FoodItem):
 
 
 
-class BrandedFood(FoodItem):
+class BrandedFoodItem(FoodItem):
 
-    def __init__(
-        self,
-        name: str,
-        brand_name: str,
-        nutrients: Dict[str, float],
-        ingredients: List[str],
-        upc: str
-    ):
+    def __init__(self, name, brand_name, nutrients, ingredients, upc: str):
         super().__init__(name=name, nutrients=nutrients)
         self._food_class = "Branded"
         self._brand_name = brand_name.strip()
-        self._ingredients = [i.strip() for i in ingredients]
-        self._upc = upc.strip()
 
+        # print(type(nutrients))
+        for val in nutrients:
+            if val["nutrientName"] == 'Protein':
+                self._protein = val['value']    
+            if val["nutrientName"] == 'Total lipid (fat)':
+                self._fat = val["value"]
+            if val["nutrientName"] == 'Carbohydrate, by difference':
+                self._carb = val["value"]
+            if val["nutrientName"] == "Energy":
+                self._calorie = val["value"]
+        
+        self._ingredients = [i.strip() for i in ingredients]
+        self._upc = upc
+
+
+    @property
+    def protein(self):
+        return self._protein
+
+    @property
+    def carb(self):
+        return self._carb
+
+    @property
+    def fat(self):
+        return self._fat
+    
+    @property
+    def calorie(self):
+        return self._calorie
+    
+
+    
     @property
     def food_class(self) -> str:
         return self._food_class

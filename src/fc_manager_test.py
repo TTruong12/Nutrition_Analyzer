@@ -26,8 +26,8 @@ class invalid_test_db(DBManager):
 
 
 #working fc test
-fc_db = FCManager("of0bq8jn7Kmnfr7hsoTSw9lC3Guu7YYa7YcQ9IFX")
+fc_db = FCManager()
 # print(repr(fc_db))
-print(fc_db.get_item("534358")) #should print a dictionary of details for the "NUT 'N BERRY MIX" item
-
+# print(fc_db.get_item("534358")) #prints dictionary of details for the "NUT 'N BERRY MIX" item
+print(fc_db.searchDB("074880030013",1)) #prints BrandedFoodItem, "S & B Shokuhin Company Ltd SAUCE MIX, MEDIUM HOT (Branded)"  
 

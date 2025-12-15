@@ -1,80 +1,60 @@
 class NutritionAnalyzer:
     """
     Analyzes nutritional data for food items and provides formatted output, conversions, comparisons, and health scores.
-
-    Attributes:
-        _nutrients (dict): Raw nutrient data for a food item.
-        _food_name (str): Name of the food item.
-        _brand_name (str): Brand name of the food item.
     """
 
-    def __init__(self, nutrients: dict):
-        """
-        Initializes the NutritionAnalyzer with nutrient data.
+    def __init__(self):
+        # self._nutrients 
+        # self._food_name 
+        # self._brand_name
+        pass
 
-        Args:
-            nutrients (dict): Dictionary containing nutrient values.
 
-        Raises:
-            ValueError: If nutrients is not a dictionary or missing required keys.
-        """
-        if not isinstance(nutrients, dict):
-            raise ValueError("Nutrients must be provided as a dictionary.")
-        if 'food_name' not in nutrients or 'brand_name' not in nutrients:
-            raise ValueError("Nutrients must include 'food_name' and 'brand_name'.")
-        self._nutrients = nutrients
-        self._food_name = nutrients['food_name']
-        self._brand_name = nutrients['brand_name']
-
-    # ---------------------------
-    # Properties for Encapsulation
-    # ---------------------------
-    @property
-    def nutrients(self) -> dict:
-        return self._nutrients
-
-    @nutrients.setter
-    def nutrients(self, new_data: dict):
-        if not isinstance(new_data, dict):
-            raise ValueError("New nutrient data must be a dictionary.")
-        self._nutrients = new_data
-
-    @property
-    def food_name(self) -> str:
-        return self._food_name
-
-    @property
-    def brand_name(self) -> str:
-        return self._brand_name
-
-    # ---------------------------
-    # Required Methods
-    # ---------------------------
-    def convert_to_imperial_units(self) -> dict:
-        """Convert metric nutrient values (per 100 g) into imperial units (per oz)."""
-        if not nutrients:
-            return {}
-        converted = nutrients.copy()
-        GRAMS_PER_OUNCE = 28.3495
-        per_oz_factor = GRAMS_PER_OUNCE / 100.0
-        for key in ["fat", "carbohydrates", "protein", "fiber", "sugars"]:
-            if key in converted and converted[key] is not None:
-                converted[key] = round(converted[key] * per_oz_factor, 2)
-        if "sodium" in converted and converted["sodium"] is not None:
-            converted["sodium"] = round(converted["sodium"] * per_oz_factor, 1)
-        if "calories" in converted and converted["calories"] is not None:
-            converted["calories"] = round(converted["calories"] * per_oz_factor, 1)
-
-        converted["unit_basis"] = "per ounce (~28 g)"
-        
-        return converted
     
-    def format_nutrition_facts(self) -> str:
+
+    # @property
+    # def nutrients(self) -> dict:
+    #     return self._nutrients
+
+    # @nutrients.setter
+    # def nutrients(self, new_data: dict):
+    #     if not isinstance(new_data, dict):
+    #         raise ValueError("New nutrient data must be a dictionary.")
+    #     self._nutrients = new_data
+
+    # @property
+    # def food_name(self) -> str:
+    #     return self._food_name
+
+    # @property
+    # def brand_name(self) -> str:
+    #     return self._brand_name
+
+    # def convert_to_imperial_units(self) -> dict:
+    #     """Convert metric nutrient values (per 100 g) into imperial units (per oz)."""
+    #     if not nutrients:
+    #         return {}
+    #     converted = nutrients.copy()
+    #     GRAMS_PER_OUNCE = 28.3495
+    #     per_oz_factor = GRAMS_PER_OUNCE / 100.0
+    #     for key in ["fat", "carbohydrates", "protein", "fiber", "sugars"]:
+    #         if key in converted and converted[key] is not None:
+    #             converted[key] = round(converted[key] * per_oz_factor, 2)
+    #     if "sodium" in converted and converted["sodium"] is not None:
+    #         converted["sodium"] = round(converted["sodium"] * per_oz_factor, 1)
+    #     if "calories" in converted and converted["calories"] is not None:
+    #         converted["calories"] = round(converted["calories"] * per_oz_factor, 1)
+
+    #     converted["unit_basis"] = "per ounce (~28 g)"
+        
+    #     return converted
+    
+    def format_nutrition_facts(self, nutrients) -> str:
         
         """Return a formatted string showing nutrition data."""
         
         if not nutrients:
-            return "⚠️ No nutrition data available."
+            return "No nutrition data available."
         
         lines = []
         lines.append("=" * 50)
@@ -100,140 +80,159 @@ class NutritionAnalyzer:
         return "\n".join(lines)
 
 
-    def calculate_nutri_score_letter(self) -> str:
-        """Calculates Nutri-Score letter grade (A to E) based on nutrient profile."""
+    # def calculate_nutri_score_letter(self) -> str:
+    #     """Calculates Nutri-Score letter grade (A to E) based on nutrient profile."""
 
-        try:
-            sugar = self._nutrients.get('sugars', 0)
-            sat_fat = self._nutrients.get('saturated_fat', 0)
-            sodium = self._nutrients.get('sodium', 0)
-            fiber = self._nutrients.get('fiber', 0)
-            protein = self._nutrients.get('protein', 0)
-            fruits_veg = self._nutrients.get('fruits_vegetables', 0)        
-        except (TypeError, ValueError):
-            raise ValueError("Invalid nutrient values provided.")
+    #     try:
+    #         sugar = self._nutrients.get('sugars', 0)
+    #         sat_fat = self._nutrients.get('saturated_fat', 0)
+    #         sodium = self._nutrients.get('sodium', 0)
+    #         fiber = self._nutrients.get('fiber', 0)
+    #         protein = self._nutrients.get('protein', 0)
+    #         fruits_veg = self._nutrients.get('fruits_vegetables', 0)        
+    #     except (TypeError, ValueError):
+    #         raise ValueError("Invalid nutrient values provided.")
 
-        # Negative points
-        negative = sugar * 2 + sat_fat * 3 + sodium * 1.5
+    #     # Negative points
+    #     negative = sugar * 2 + sat_fat * 3 + sodium * 1.5
 
-        # Positive points
-        positive = fiber * 2 + protein * 1.5 + fruits_veg * 2
+    #     # Positive points
+    #     positive = fiber * 2 + protein * 1.5 + fruits_veg * 2
 
-        score = round(negative - positive)
+    #     score = round(negative - positive)
 
-        # Map score to Nutri-Score letter
-        if score <= -1:
-            return 'A'
-        elif score <= 2:
-            return 'B'
-        elif score <= 10:
-            return 'C'
-        elif score <= 18:
-            return 'D'
-        else:
-            return 'E'
+    #     # Map score to Nutri-Score letter
+    #     if score <= -1:
+    #         return 'A'
+    #     elif score <= 2:
+    #         return 'B'
+    #     elif score <= 10:
+    #         return 'C'
+    #     elif score <= 18:
+    #         return 'D'
+    #     else:
+    #         return 'E'
 
 
-    def get_healthier_alternatives(self, max_results: int = 3) -> list:
+    def get_healthier_alternatives(self, fooditems: list):
         """
-        Fetch and rank healthier alternatives from OpenFoodFacts for this food item.
+        Args: list of FoodItems
 
-        Args:
-            max_results (int): Number of top alternatives to return.
-
-        Returns:
-            list: Ranked list of healthier alternatives with basic nutrition info.
+        Returns: Dictionary of 3 alternative FoodItems: highest protein content, lowest calorie, lowest fat content  
         """
+        min_calories = -1
+        max_protein_per = 0 #per calorie
+        min_fat_per = -1 #per calorie
+
         
-        try:
-            url = "https://world.openfoodfacts.org/cgi/search.pl"
-            params = {
-                "search_terms": self._food_name,
-                "search_simple": 1,
-                "action": "process",
-                "json": 1,
-                "page_size": 20
-                }
+        foodRecs ={"protein": None, "fat": None, "calorie": None}
+        for val in fooditems:
+            pro_per = val.protein/val.calorie
+            if  pro_per> max_protein_per:
+                foodRecs["protein"] = val
+                max_protein_per = pro_per
+
+            if val.calorie < min_calories or min_calories == -1:
+                foodRecs["calorie"] = val
+                min_calories = val.calorie
+
+            fat_per= val.fat/val.calorie
+            if  fat_per < min_fat_per or min_fat_per == -1:
+                foodRecs["fat"] = val
+                min_fat_per = fat_per 
+
+        return foodRecs
             
-            r = requests.get(url, params=params)
-            r.raise_for_status()
-            data = r.json()
-            products = data.get("products", [])
-            if not products:
-                return []
+
+    #     try:
+    #         url = "https://world.openfoodfacts.org/cgi/search.pl"
+    #         params = {
+    #             "search_terms": self._food_name,
+    #             "search_simple": 1,
+    #             "action": "process",
+    #             "json": 1,
+    #             "page_size": 20
+    #             }
             
-            candidates = []
-            for p in products:
-                if "nutriments" not in p:
-                    continue
+    #         r = requests.get(url, params=params)
+    #         r.raise_for_status()
+    #         data = r.json()
+    #         products = data.get("products", [])
+    #         if not products:
+    #             return []
+            
+    #         candidates = []
+    #         for p in products:
+    #             if "nutriments" not in p:
+    #                 continue
                 
-                n = p["nutriments"]
-                if all(k in n for k in ("energy-kcal_100g", "sugars_100g", "fat_100g")):
-                    candidates.append({
-                        "name": p.get("product_name", "Unknown"),
-                        "brand": p.get("brands", "Unknown brand"),
-                        "url": p.get("url", ""),
-                        "calories": n["energy-kcal_100g"],
-                        "sugars": n["sugars_100g"],
-                        "fat": n["fat_100g"]
-                    })
+    #             n = p["nutriments"]
+    #             if all(k in n for k in ("energy-kcal_100g", "sugars_100g", "fat_100g")):
+    #                 candidates.append({
+    #                     "name": p.get("product_name", "Unknown"),
+    #                     "brand": p.get("brands", "Unknown brand"),
+    #                     "url": p.get("url", ""),
+    #                     "calories": n["energy-kcal_100g"],
+    #                     "sugars": n["sugars_100g"],
+    #                     "fat": n["fat_100g"]
+    #                 })
                 
-            if not candidates:
-                return []
+    #         if not candidates:
+    #             return []
             
-            ranked = sorted(candidates, key=lambda x: x["calories"] + 2*x["sugars"] + 2*x["fat"])
-            return ranked[:max_results]
+    #         ranked = sorted(candidates, key=lambda x: x["calories"] + 2*x["sugars"] + 2*x["fat"])
+    #         return ranked[:max_results]
         
-        except Exception as e:
-            print("⚠️ Error fetching alternatives:", e)
-            return []
+    #     except Exception as e:
+    #         print("⚠️ Error fetching alternatives:", e)
+    #         return []
 
 
     
-    def compare_labels(self, other_nutrients: dict) -> dict:
-        """
-        Compare nutrient facts between this food item and another.
+    # def compare_labels(self, other_nutrients: dict) -> dict:
+    #     """
+    #     Compare nutrient facts between this food item and another.
 
-        Args:
-            other_nutrients (dict): Nutrient data for the other product.
+    #     Args:
+    #         other_nutrients (dict): Nutrient data for the other product.
 
-        Returns:
-            dict: Comparison result for each shared nutrient in the format:
-                  {nutrient: (value_in_self, value_in_other, comparison)}
+    #     Returns:
+    #         dict: Comparison result for each shared nutrient in the format:
+    #               {nutrient: (value_in_self, value_in_other, comparison)}
 
-        Raises:
-            ValueError: If inputs are not valid nutrient dictionaries or contain non-numeric values.
+    #     Raises:
+    #         ValueError: If inputs are not valid nutrient dictionaries or contain non-numeric values.
         
-        Example:
-            >>> analyzer.compare_labels({'calories': 120, 'protein': 5})
-            {'calories': (150, 120, 'higher in A'), 'protein': (5, 5, 'equal')}
-        """
+    #     Example:
+    #         >>> analyzer.compare_labels({'calories': 120, 'protein': 5})
+    #         {'calories': (150, 120, 'higher in A'), 'protein': (5, 5, 'equal')}
+    #     """
         
-        if not isinstance(other_nutrients, dict):
-            raise ValueError("Input must be a dictionary containing nutrient data.")
+    #     if not isinstance(other_nutrients, dict):
+    #         raise ValueError("Input must be a dictionary containing nutrient data.")
         
-        comparison_result = {}
-        common_nutrients = set(self._nutrients.keys()) & set(other_nutrients.keys())
+    #     comparison_result = {}
+    #     common_nutrients = set(self._nutrients.keys()) & set(other_nutrients.keys())
         
-        for nutrient in common_nutrients:
-            a_val = self._nutrients.get(nutrient, 0)
-            b_val = other_nutrients.get(nutrient, 0)
+    #     for nutrient in common_nutrients:
+    #         a_val = self._nutrients.get(nutrient, 0)
+    #         b_val = other_nutrients.get(nutrient, 0)
             
-            if not isinstance(a_val, (int, float)) or not isinstance(b_val, (int, float)):
-                raise ValueError(f"Nutrient values must be numeric for '{nutrient}'.")
+    #         if not isinstance(a_val, (int, float)) or not isinstance(b_val, (int, float)):
+    #             raise ValueError(f"Nutrient values must be numeric for '{nutrient}'.")
             
-            if a_val > b_val:
-                comparison = "higher in A"
+    #         if a_val > b_val:
+    #             comparison = "higher in A"
                 
-            elif b_val > a_val:
-                comparison = "higher in B"
+    #         elif b_val > a_val:
+    #             comparison = "higher in B"
                 
-            else:
-                comparison = "equal"
+    #         else:
+    #             comparison = "equal"
                 
-            comparison_result[nutrient] = (a_val, b_val, comparison)
+    #         comparison_result[nutrient] = (a_val, b_val, comparison)
         
-        return comparison_result
+    #     return comparison_result
 
     @staticmethod
     def parse_usda_nutrients(food: dict) -> dict:

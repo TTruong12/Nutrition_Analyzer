@@ -1,7 +1,10 @@
 from db_manager import DBManager
-import food_item 
+from food_item import BrandedFoodItem, FoundationFoodItem, FoodItem
 import requests
 from dataclasses import dataclass
+
+import nltk
+
 
 
 
@@ -9,6 +12,7 @@ class FCManager(DBManager):
     """
     Manages GET calls to USDA's Food Central Database
     """
+    
     def __init__(self, key = "DEMO_KEY"):
         super().__init__("https://api.nal.usda.gov/fdc/v1", key, "DEMO_KEY")
         
@@ -45,12 +49,14 @@ class FCManager(DBManager):
         
         match food_data["dataType"]:
             case "Foundation":
-                return food_item.FoundationFood(food_data["description"], food_data["foodNutrients"], food_data["scientificName"])
+                return FoundationFoodItem(food_data["description"], food_data["foodNutrients"], food_data["scientificName"])
             case "Branded": 
-                return food_item.BrandedFood(food_data["description"], food_data["brandOwner"], food_data["foodNutrients"], food_data["ingredients"], food_data["gtinUpc"])
+                # print(food_data['foodNutrients'])
+                return BrandedFoodItem(food_data["description"], food_data["brandOwner"], food_data["foodNutrients"], food_data["ingredients"], food_data["gtinUpc"])
             case _:
-                return food_item.FoodItem(food_data["description"], food_data["foodNutrients"])
+                return FoodItem(food_data["description"], food_data["foodNutrients"])
             
+
     def get_item(self, fdcID):
         """Given the Food Central Database ID, returns dictionary of details of that item"""
         request_url = f"{self.url}/food/{fdcID}?api_key={self.key}"
@@ -80,7 +86,7 @@ class FCManager(DBManager):
         elif key == 1:
             query = query.strip()
             if query.isnumeric():
-                request_url = f"{self.url}/foods/search?api_key={self.key}&query=gtinUPC%3A%20{query}"
+                request_url = f"{self.url}/foods/search?api_key={self.key}&query={query}" #gtinUPC%3A%20
             else:
                 print("Invalid UPC")
                 return
@@ -93,16 +99,110 @@ class FCManager(DBManager):
             if food_data['totalHits'] == 0:
                 print("Food item not found")
             elif food_data['totalHits'] == 1:
-                return food_item(food_data['foods']['fdcID'])
+                # print(food_data['foods'][0]['description'])
+                return self.create_food_item(food_data['foods'][0])
             elif food_data['totalHits'] > 1:
                 foodlist = []
                 for i in range(len(food_data['foods'])):
-                    foodlist.append(self.create_food_item(food_data['foods'][i]))
-                return foodlist
+                    foodlist.append(food_data['foods'][i])
+                #print(food_data)
+
+                return self.get_relevant(query, foodlist)
         else:
             print(f"Failed to retrieve data. Error {response.status_code}\nURL: {request_url}")
             # print(response.text)
         
+
+
+    def get_relevant(self, query, results):
+        """Returns 100 most relevant using TF-IDF for the list of food dictionaries"""
+        docs = []
+        i = 0
+        limit = 3
+        for val in results: #adds all results to a list as a string of relevant text 
+            
+            # if i>limit: #limiting number of search results processed
+            #     break
+            docRepr = ""
+            if 'description' in val:
+                docRepr += str(val['description'])
+            if 'ingredients' in val:
+                docRepr += str(val['ingredients'])
+            if 'brandedFoodCategory' in val:
+                docRepr +=str(val['brandedFoodCategory'])
+            if 'brandOwner' in val:
+                docRepr += str(val['brandOwner'])
+            # print(f"$$$ {docRepr}")
+            docs.append(docRepr)
+            results[i]['relScore'] = self.computeTFIDF(docRepr,query)
+            # print(results[i]['relScore'])
+            i +=1
+        # for val in results:
+        # print(val.keys())
+        results = sorted(results, key = lambda x: x.get('relScore', 0))
+        # print(results[0].get('relScore'))
+        # print(results[-1].get('relScore'))
+        
+        ranked = []
+        i = 0
+        for val in results:
+            if i >= 100:
+                break
+            # print("Score: " + str(val['relScore']))
+            temp_food = self.create_food_item(val)
+            # print("Created: " + str(temp_food))
+            ranked.append(temp_food)
+            i += 1
+
+
+        return ranked
+
+        
+        
+            
+
+
+    def tokenize(self, text:str):
+        stop_sym = [".",",","(",")"]
+        stop_words = ["the", "in", "a"]
+        for sym in stop_sym: 
+            text.replace(sym , " ")
+        tokens = text.lower().split()
+
+        
+        filtered_tokens = [word for word in tokens if word not in stop_words]
+        
+        filteredText = ""
+        for val in filtered_tokens:
+            filteredText +=val + " "
+        # print(filteredText)
+        return filteredText
+    
+    def computeTFIDF(self, text, query:str):
+        """Returns term frequency of text"""
+        # query = self.tokenize(query)
+        qwords = query.split()
+
+        text = self.tokenize(text)
+        twords = text.split()
+        
+        tfDict = {}
+        for val in twords:
+            if val in tfDict:
+                tfDict[val] +=1
+            else:
+                tfDict[val] = 0
+        
+        tfidfs = {}
+        for val in qwords:
+            if val in tfDict:
+                tfidfs[val] = tfDict[val]/len(text)
+        
+        score = 0
+        for val in tfidfs:
+            score += tfidfs[val]
+        return score
+
     def prompt_key(self) -> str:
         """Prompts user for api key or returns default key"""
         test_key = input("Enter API key (Press enter to use default): ")
@@ -113,6 +213,10 @@ class FCManager(DBManager):
     
     def __repr__(self):
             return f"db_manager | URL: {self.url} API Key: {self.key}"   
+    
+
+
+
 
 
 
@@ -121,3 +225,8 @@ class FCManager(DBManager):
 # test_q = x.searchDB("Kit Kat",0)
 # for i in test_q:
 #     print(i)
+
+# x = FCManager()
+# results = x.searchDB("apple",0)
+# for val in results:
+#     print(val)
