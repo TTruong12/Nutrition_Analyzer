@@ -67,10 +67,11 @@ class NutritionApp:
                         print("Not found in database")
                     else:
                         print(f"Food item found: {result}")
-                        print("Searching for alternatives...")
-                        related = self.fc_db.searchDB(result.name,1)
-                        alters = self.analyzer.get_healthier_alternatives(related)
-                        self.display_alter(alters)
+                        self.compare_menu(result)
+                        # print("Searching for alternatives...")
+                        # related = self.fc_db.searchDB(result.name,1)
+                        # alters = self.analyzer.get_healthier_alternatives(related)
+                        # self.display_alter(alters)
                 else:
                     print("Keyword Search")
                     result = self.fc_db.searchDB(query) 
@@ -104,6 +105,24 @@ class NutritionApp:
                 break
             else:
                 print("Invalid option.")
+    def compare_menu(self, fooditem):
+        upc = input("Enter UPC of second food item (Enter to cancel): ")
+        if upc == "":
+            print("Cancelled")
+            return
+        else: 
+            fooditem2 = self.fc_db.searchDB(upc,1)
+            self.display_comparison(fooditem,fooditem2)
+            return
+    def display_comparison(self, item1, item2):
+        print(f"         {item1.name} | {item1.name} ")
+       
+        print(f"calories {item1.calorie} | {item2.calorie}")
+        print(f"carbs    {item1.carb} | {item2.carb}")
+        print(f"protein  {item1.protein} | {item2.protein}")
+        print(f"fat      {item1.fat} | {item2.fat}")
+        
+
 
     def display_alter(self, alters):
         """Takes dictionary of alternative food items and formats/prints message"""

@@ -38,10 +38,9 @@ Many consumers struggle to understand nutrition labels and compare food products
 
 
 Setup Instructions:
-You will need to obtain your own API key by signing up at the USDA API portal (https://fdc.nal.usda.gov/api-key-signup).
+Recommended: Obtain your own API key by signing up at the USDA API portal (https://fdc.nal.usda.gov/api-key-signup).
 Then, you will need to insert your own key into the USDA_API_KEY field.
 There is a DEMO_KEY available, but it only works a limited amount of time.
-Obtaining your own key is recommended.
 
 Example use cases for functions:
 - discovering healthier food option
@@ -51,6 +50,17 @@ Example use cases for functions:
 
 Contribution Guidelines
 Our team collaborates through GitHub using feature branches and pull requests. Each member focuses on specific areas: API integration, user interface, testing, and documentation. Code must follow programming standards, include clear comments, and run error-free. Before merging, at least one peer review is required. The main branch remains stable and is updated only after successful testing. Weekly check-ins ensure progress and task alignment. All commits must have descriptive messages and working examples. Each feature should be well-documented, tested with known barcodes, and contribute to a smooth, user-friendly nutrition analysis experience.
+
+Running Tests
+python testTT.py 
+Demonstrates Composition, inheritance
+
+python fc_manager.py
+Demonstrates ABC enforcement, inheritance, API functionality 
+
+python test_nutrition_analyzer.py
+Demonstrates get_healthier_alternatives function and integration with FCManager
+
 
 Design Decisions
 Why Inheritance for Database Managers and Food Items?
