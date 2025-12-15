@@ -1,4 +1,8 @@
 # Nutrition Analyzer
+
+Video Presentation: https://umd0-my.sharepoint.com/:v:/g/personal/aparkhie_umd_edu/IQDRiYfeoAkGQKuew_XXMPIxAXSrM_wtaNSLdzuVotiToYk?e=P5jWrE&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
+
+
 An application that scans a food item and gives you information about the product and gives alternative recommendations.
 
 Roles:
@@ -203,7 +207,6 @@ classDiagram
 
 * = abstract method from the DBManager interface.
 
-Video Presentation: https://umd0-my.sharepoint.com/:v:/g/personal/aparkhie_umd_edu/IQDRiYfeoAkGQKuew_XXMPIxAXSrM_wtaNSLdzuVotiToYk?e=P5jWrE&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
 
 
 
