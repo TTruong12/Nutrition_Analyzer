@@ -30,6 +30,8 @@ class testsTT(unittest.TestCase):
     def test_fc_db(self):
         fc_db = FCManager()
         self.assertIsInstance(fc_db, DBManager)
+        print(fc_db.get_item("534358")) #prints dictionary of details for the "NUT 'N BERRY MIX" item
+        print(fc_db.searchDB("074880030013",1)) #prints BrandedFoodItem, "S & B Shokuhin Company Ltd SAUCE MIX, MEDIUM HOT (Branded)"  
 
     
 if __name__ == '__main__':
